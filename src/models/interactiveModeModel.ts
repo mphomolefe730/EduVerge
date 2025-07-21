@@ -1,6 +1,6 @@
 import fileType from '../configs/fileTypes.ts';
 
-export default class InteractiveModeModel{
+export default interface InteractiveModeModel{
 	text: { time: string, context:string, run:boolean } [] | [];
 	curse: { time:string, x: number, y: number};
 	filetype: fileType;

@@ -5,6 +5,8 @@ import './index.css';
 
 import HomePage from './modules/homepage/components/homepage.tsx';
 import InteractiveMode from './modules/interactive_mode/components/interactiveMode.tsx';
+import EditMode from './modules/editor_mode/components/editorMode.tsx';
+import EditModeForm from './modules/editor_mode/components/editModeForm.tsx';
 
 const router = createBrowserRouter([
   { 
@@ -14,6 +16,12 @@ const router = createBrowserRouter([
   },{
     path: '/interactive/:courseId/:courseSection',
     element: <InteractiveMode/>,
+  },{
+    path: '/create',
+    element: <EditModeForm />
+  },{
+    path: '/edit/:courseCollection/:courseName',
+    element: <EditMode/> 
   }
 ])
 
