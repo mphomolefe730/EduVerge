@@ -1,5 +1,5 @@
 import { useState, type FormEvent } from 'react';
-import './editModeForm.css';
+import styles from './editModeForm.module.css';
 import { type Option } from '../../../configs/option.ts';
 import { useNavigate } from 'react-router-dom';
 

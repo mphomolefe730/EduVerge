@@ -1,10 +1,10 @@
+import type InteractiveModeModel from "../models/interactiveModeModel";
 import type { CourseDetails } from "./courseDetails";
 
 export interface EditModeSettings{
-    toolBar:string[] | [],
     courseDetails: CourseDetails,
     files:string[]  | [],
     courseSettings:string[] | [],
-    main: { time:string, context:string, run:boolean }[] | [],
+    main: InteractiveModeModel[] | [],
     audio: { time:string, audioLink:string }[] |[],
 }

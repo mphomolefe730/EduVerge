@@ -8,17 +8,69 @@
     display: grid;
     grid-template-rows: 1.5fr 6fr 1.5fr;
     height: 100svh;
+    padding: 0 5px;
+    gap: 5px;
 }
 .editModeSecondaryContainer{
     display: grid;
     grid-template-columns: 2fr 6fr 6fr;
     gap: 10px;
 }
+.editModeSubContainer{
+    margin: 0;
+    padding: 0;
+    border: 2px solid black;
+}
+.toolbarBtn{
+    margin: 0px 10px;
+    border: 0;
+    background-color: white;
+}
+.toolbarElements{
+    padding: 0.55rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.fileElements button{
+    margin: 0.25rem;
+    background-color: transparent;
+    border: 0;
+    text-transform: uppercase;
+}
+.addType{
+    max-width: 180px;
+}
+.mainElementContainer{
+    display: grid;
+    grid-template-columns: 1.5fr 6fr 1fr;
+}
 #one{
     display: grid;
     grid-template-rows: 2fr 6fr 2fr;
+    gap: 5px;
 }
 #two{
     display: grid;
     grid-template-rows: 6fr 2fr;
+    gap: 5px;
+}
+
+.mainContainer{
+    display: grid;
+    grid-template-columns: 1fr 5fr 0.5fr;
+    gap: 0.1rem;
+    margin: 0.5rem;
+    box-shadow: 0px 0px 2px 0px black;
+    padding: 0.5rem;
+    border-radius: 0.5rem;
+}
+.mainSubContainer input{
+    margin: 0.5rem 0;
+}
+
+.mainSubContainer textarea{
+    width: 100%;
+    min-height: 100px;
 }
