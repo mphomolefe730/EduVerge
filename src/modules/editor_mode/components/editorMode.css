@@ -14,12 +14,23 @@
 .editModeSecondaryContainer{
     display: grid;
     grid-template-columns: 2fr 6fr 6fr;
-    gap: 10px;
+    gap: 10px;    
+    height: 100%;
+    overflow: hidden;
+    max-height: 85svh;
 }
 .editModeSubContainer{
     margin: 0;
     padding: 0;
     border: 2px solid black;
+}
+
+.editModeSubContainerMain, .editModeSubContainerAudio{
+    overflow: overlay;
+    max-height: 30svh;
+}
+.ContainerMain{
+    max-height: 40%;
 }
 .toolbarBtn{
     margin: 0px 10px;
@@ -46,16 +57,6 @@
     display: grid;
     grid-template-columns: 1.5fr 6fr 1fr;
 }
-#one{
-    display: grid;
-    grid-template-rows: 2fr 6fr 2fr;
-    gap: 5px;
-}
-#two{
-    display: grid;
-    grid-template-rows: 6fr 2fr;
-    gap: 5px;
-}
 
 .mainContainer{
     display: grid;
@@ -74,3 +75,4 @@
     width: 100%;
     min-height: 100px;
 }
+/*---------------------------------------------------------*/

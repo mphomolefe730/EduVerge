@@ -5,7 +5,7 @@ import { faFloppyDisk, faCirclePlay, faSquarePlus } from '@fortawesome/free-regu
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import fileTypes from '../../../configs/fileTypes.ts';
 import type InteractiveModeModel from '../../../models/interactiveModeModel.ts';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 
 function EditMode(){
     const params = useParams();
@@ -23,7 +23,8 @@ function EditMode(){
                 x: 0,
                 y: 0
             },
-            filetype: fileTypes.HTML
+            fileType: fileTypes.HTML,
+            fileName: 'index'
             },{
             text: [
                 { time: '00:03', context: '.xnxbx{', run: true }
@@ -33,11 +34,21 @@ function EditMode(){
                 x: 0,
                 y: 0
             },
-            filetype: fileTypes.Cascading_Style_Sheet_Document
+            fileType: fileTypes.Cascading_Style_Sheet_Document,
+            fileName: 'index'
         }
     ]);
 
-    let courseInformation:EditModeSettings = {
+    let [testAudioData , updateAudioData ] = useState<{ time:string, audioLink:string, audioStartTime:string, audioEndTime: string  }[]>([
+        {
+            time: '00:00',
+            audioLink: 'C:\Users\Mpho Molefe\Downloads\testAudio.mp3',
+            audioStartTime: '02:00',
+            audioEndTime: '07:00'
+        }
+    ])
+
+    let [ courseInformation, updateCourseInformation ] = useState<EditModeSettings>({
         courseDetails: {
             courseName: courseName.split("-").join(" "),
             courseDescription: '',
@@ -46,11 +57,11 @@ function EditMode(){
             accessPeriod: 0,
             courseCollection: courseCollect
         },
-        files: ["index.js"],
+        files: [],
         courseSettings: [],
         main: testMainData,
-        audio: [],
-    };
+        audio: testAudioData,
+    });
 
     let handleFunction = () =>{
         console.log('clicked');
@@ -68,8 +79,15 @@ function EditMode(){
         );
     };
 
+    const handleRemoveAudio = (textIdx: number) => {
+        updateAudioData(prevData =>
+            prevData.filter((_, j) => j !== textIdx)
+        );
+    };
+
     const handleAdd = (fieldType:string) => {
         if(fieldType == 'text editor'){
+            console.log("text field added");
             updateTestMainData([...testMainData, 
                 {
                     text: [
@@ -80,10 +98,21 @@ function EditMode(){
                         x: 0,
                         y: 0
                     },
-                    filetype: fileTypes.HTML
+                    fileType: fileTypes.HTML,
+                    fileName: ''
                 }
             ]);
-        }else if(fieldtype == 'file'){};
+        }else if(fieldType == 'file'){
+            console.log("file added");
+        }else if(fieldType == 'audio editor'){
+            console.log("audio added");
+            updateAudioData([...testAudioData,{
+                time: '',
+                audioLink: '',
+                audioStartTime: '',
+                audioEndTime: ''
+            }]);
+        };
     };
 
     const handleTextChange = (
@@ -119,6 +148,13 @@ function EditMode(){
             })
         );
     };
+    
+    useEffect(()=>{
+        updateCourseInformation(prevState => ({
+            ...prevState,
+            files: [...prevState.files, ...testMainData.map(p => `${p.fileName}.${p.fileType}`)]
+        }));
+    },[])
     
     return(
         <div className='editModeMainContainer'>
@@ -172,55 +208,86 @@ function EditMode(){
                     </div>
                 </div>
                 <div id="two">
-                    <div className='editModeSubContainer'>
+                    <div className='editModeSubContainerMain editModeSubContainer'>
                         <p className="containerTitle">MAIN</p>
-                        <div>
-                            <div>                                
-                                { 
-                                    courseInformation.main.map((field, index) => {
-                                        return(
-                                            field.text.map((t, textIndex)=>{
-                                                return(
-                                                    <div className="mainContainer">
-                                                        <div className="mainSubContainer">
-                                                            <label htmlFor="courseTime"> TIME </label>
-                                                            <input type="text" placeholder={t.time} value={t.time} onChange={(e) => { handleTextChange(index, index,  'time', e.target.value)}}/>
-                                                            <label htmlFor="courseRun"> RUN  </label>
-                                                            <button onClick={() => { handleRunChange(index, textIndex,false) }} style={{ backgroundColor:(t.run == false )? "red":"gray"}}>OFF</button>
-                                                            <button onClick={() => { handleRunChange(index, textIndex, true) }} style={{ backgroundColor:(t.run) ? "green":"gray"}}>ON</button>
-                                                            <p>FIELD TYPE: { field.filetype }</p>
-                                                        </div>
-                                                        <div className="mainSubContainer">
-                                                            <label htmlFor="courseContext"> Context </label>
-                                                            <p>
-                                                            </p>
-                                                            <textarea placeholder={t.context} value={t.context} onChange={(e) => { handleTextChange(index, index,  'context', e.target.value)}}/>
-                                                        </div>
-                                                        <div className="mainSubContainer">
-                                                            <label htmlFor="courseremove"> Remove </label>
-                                                            <input type="button" value="remove field" onClick={() => handleRemoveText(index, textIndex)} />
-                                                        </div>
+                        <div className='ContainerMain'>                               
+                            { 
+                                courseInformation.main.map((field, index) => {
+                                    return(
+                                        field.text.map((t, textIndex)=>{
+                                            return(
+                                                <div className="mainContainer">
+                                                    <div className="mainSubContainer">
+                                                        <p style={{ backgroundColor: 'red', color: 'white' }}> { index + 1} </p>
+                                                        <label htmlFor="courseTime"> TIME </label>
+                                                        <input type="text" placeholder={t.time} value={t.time} onChange={(e) => { handleTextChange(index, index,  'time', e.target.value)}}/>
+                                                        <label htmlFor="courseRun"> RUN  </label>
+                                                        <button onClick={() => { handleRunChange(index, textIndex,false) }} style={{ backgroundColor:(t.run == false )? "red":"gray"}}>OFF</button>
+                                                        <button onClick={() => { handleRunChange(index, textIndex, true) }} style={{ backgroundColor:(t.run) ? "green":"gray"}}>ON</button>
+                                                        <p>FIELD NAME: { field.fileName }</p>
+                                                        <p>FIELD TYPE: { field.fileType }</p>
                                                     </div>
-                                                )
-                                            }) 
-                                        )
-                                    })
-                                }
-                            </div>
+                                                    <div className="mainSubContainer">
+                                                        <label htmlFor="courseContext"> Context </label>
+                                                        <p>
+                                                        </p>
+                                                        <textarea placeholder={t.context} value={t.context} onChange={(e) => { handleTextChange(index, index,  'context', e.target.value)}}/>
+                                                    </div>
+                                                    <div className="mainSubContainer">
+                                                        <label htmlFor="courseremove"> Remove </label>
+                                                        <input type="button" value="remove field" onClick={() => handleRemoveText(index, textIndex)} />
+                                                    </div>
+                                                </div>
+                                            )
+                                        }) 
+                                    )
+                                })
+                            }
                         </div>
                     </div>
-                    <div className='editModeSubContainer'>
+                    <div >
                         <p className="containerTitle">AUDIO EDITOR</p>
-                        <div></div>
+                        <div className='editModeSubContainerAudio'>
+                            { 
+                                courseInformation.audio.map((field, index) => {
+                                    return(
+                                        <div className="mainContainer">
+                                            <div className="mainSubContainer">
+                                                <p style={{ backgroundColor: 'red', color: 'white' }}> {index + 1} </p>
+                                                <label htmlFor="courseTime"> TIME </label>
+                                                <input type="text" placeholder={field.time} value={field.time} />
+                                                <label htmlFor="courseTime"> Start AUDIO TIME </label>
+                                                <input type="text" placeholder={field.audioStartTime} value={field.audioStartTime} />
+                                                <label htmlFor="courseTime"> End AUDIO TIME </label>
+                                                <input type="text" placeholder={field.audioEndTime} value={field.audioEndTime} />
+                                            </div>
+                                            <div className="mainSubContainer">
+                                                <label htmlFor="courseTime"> AUDIO </label>
+                                                <input type="file" accept="audio/*" id="audioInput" />
+                                                <audio id="audioPlayer" controls src={field.audioLink}></audio>
+                                            </div>
+                                            <div className="mainSubContainer">
+                                                <label htmlFor="courseremove"> Remove </label>
+                                                <input type="button" value="remove field" onClick={() => handleRemoveAudio(index)}/>
+                                            </div>
+                                        </div>
+                                    )
+                                })
+                            }
+                            </div>
                     </div>
                 </div>
                 <div id="three">
                     <p className="containerTitle">Output</p>
-                    <div></div>
+                    <pre>
+                        <code>
+                            
+                        </code>
+                    </pre>
                 </div>
             </div>
             <div>
-                <p>l</p>
+                <button>PLAY/PAUSE</button>
             </div>
         </div>
     )

@@ -3,7 +3,8 @@ import fileType from '../configs/fileTypes.ts';
 export default interface InteractiveModeModel{
 	text: { time: string, context:string, run:boolean } [] | [];
 	curse: { time:string, x: number, y: number};
-	filetype: fileType;
+	fileType: fileType;
+	fileName: string
 }
 
 /* HELP ME TEXT --------------------------------------------------------------------------------------------
