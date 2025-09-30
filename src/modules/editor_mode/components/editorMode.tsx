@@ -10,6 +10,8 @@ import { useEffect, useState } from 'react';
 function EditMode(){
     const params = useParams();
     const [selectedAddType, setSelectedAddType] = useState('text editor');
+    const [isPlaying, setIsPlaying] = useState(false);
+    const [trackTime, setTrackTime] = useState(0);
     const courseName = (params.courseName) ? params.courseName : '';
     const courseCollect = (params.courseCollection) ? params.courseCollection : '';
 
@@ -154,8 +156,26 @@ function EditMode(){
             ...prevState,
             files: [...prevState.files, ...testMainData.map(p => `${p.fileName}.${p.fileType}`)]
         }));
-    },[])
-    
+    },[]);
+
+    const togglePlayPause = () => {
+        setIsPlaying(prevIsPlaying => !prevIsPlaying)
+    }
+
+    useEffect(()=>{
+        let timer:NodeJS.Timeout | undefined;
+        if(isPlaying){
+            timer = setTimeout(()=>{
+                setTrackTime(prevTime => prevTime + 1)
+            }, 1000)
+        }
+        return()=>{
+            if(timer){
+                clearTimeout(timer);
+            }
+        }
+    }, [isPlaying, trackTime]);
+
     return(
         <div className='editModeMainContainer'>
             <div className='editModeSubContainer'>
@@ -284,10 +304,11 @@ function EditMode(){
                             
                         </code>
                     </pre>
-                </div>
+                </div> 
             </div>
             <div>
-                <button>PLAY/PAUSE</button>
+                <button onClick={ togglePlayPause }> {isPlaying ? "Pause" : "Play"} </button>
+                <p>current time: {trackTime}s </p>
             </div>
         </div>
     )
