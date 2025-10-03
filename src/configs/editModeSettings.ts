@@ -6,5 +6,5 @@ export interface EditModeSettings{
     files:string[],
     courseSettings:string[],
     main: InteractiveModeModel[],
-    audio: { time:string, audioLink:string }[] | [],
+    audio: { time:string, audioLink:string, audioStartTime:string, audioEndTime:string }[] | [],
 }
