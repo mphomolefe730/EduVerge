@@ -1,5 +1,5 @@
 import { useParams } from "react-router-dom";
-import { useEffect, useState } from "react";
+import { useEffect, useState, type WebViewHTMLAttributes } from "react";
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faFloppyDisk, faCirclePlay, faSquarePlus } from '@fortawesome/free-regular-svg-icons';
 
@@ -79,10 +79,10 @@ const FilesSection = ({ files }: { files: string[] }) => (
     <p className="containerTitle">FILES</p>
     <div className='fileElements'>
       {files.map((file, idx) => (
-        <button key={idx}>{file}</button>
+        <button key={idx} onClick={ ()=>console.log("file clicked") }>{file}</button>
       ))}
     </div>
-    <button>OVERVIEW</button>
+    <button>REMOVE FILTER</button>
   </div>
 );
 
@@ -146,23 +146,24 @@ const MainEditor = ({
 
 // Output Display
 const OutputDisplay = ({outputDisplayVar}:{outputDisplayVar:string} )=>(
-  <div>
-    { outputDisplayVar }
+  <div dangerouslySetInnerHTML={{__html: outputDisplayVar}}>
   </div>
-  // <pre>
-  //   <code>
-  //   </code>
-  // </pre>
 )
 
 // ---------- Audio Editor ----------
-const AudioEditor = ({ audio, onRemove }: { audio: { time: string; audioLink: string; audioStartTime: string; audioEndTime: string }[];
+const AudioEditor = ({
+  audio,
+  onRemove,
+  onPlay
+}: {
+  audio: { time: string; audioLink: string; audioStartTime: string; audioEndTime: string }[];
   onRemove: (idx: number) => void;
+  onPlay: (link: string, start: string, end: string) => void;
 }) => (
   <div>
     <p className="containerTitle">AUDIO EDITOR</p>
     <div className='editModeSubContainerAudio'>
-      { audio.map((field, idx) => (
+      {audio.map((field, idx) => (
         <div className="mainContainer" key={idx}>
           <div className="mainSubContainer">
             <p style={{ backgroundColor: 'red', color: 'white' }}>{idx + 1}</p>
@@ -173,11 +174,16 @@ const AudioEditor = ({ audio, onRemove }: { audio: { time: string; audioLink: st
             <label>End</label>
             <input type="text" value={field.audioEndTime} readOnly />
           </div>
+
           <div className="mainSubContainer">
             <label>AUDIO</label>
             <input type="file" accept="audio/*" />
             <audio controls src={field.audioLink}></audio>
+            <button onClick={() => onPlay(field.audioLink, field.audioStartTime, field.audioEndTime)}>
+              ▶ Play Segment
+            </button>
           </div>
+
           <div className="mainSubContainer">
             <label>Remove</label>
             <input type="button" value="remove field" onClick={() => onRemove(idx)} />
@@ -210,30 +216,105 @@ function EditMode() {
     courseSettings: [],
     main: [
       {
-        text: [{ time: "00:00", context: "<p>test text</p>", run: true }],
+        text: [{ time: "00:00", context: "<p>welcome to</p><h1>EDU VERGE</h1>", run: true }],
         curse: { time: "", x: 0, y: 0 },
         fileType: fileTypes.HTML,
         fileName: "index"
       },
       {
-        text: [{ time: "00:03", context: "<p>test text</p><button>press me</button>", run: true }],
+        text: [{ time: "00:03", context: "<p>my name:</p><h1>Mpho Molefe</h1>", run: true }],
         curse: { time: "", x: 0, y: 0 },
-        fileType: fileTypes.Cascading_Style_Sheet_Document,
+        fileType: fileTypes.HTML,
         fileName: "index"
       },
       {
-        text: [{ time: "00:05", context: "<h1>lets get started</h1>", run: true }],
+        text: [{ time: "00:08", context: "what will you learn:", run: true }],
         curse: { time: "", x: 0, y: 0 },
-        fileType: fileTypes.Cascading_Style_Sheet_Document,
+        fileType: fileTypes.HTML,
+        fileName: "index"
+      },
+      {
+        text: [{ time: "00:14", context: "what will you learn: <p>adding <button>button</button></p>", run: true }],
+        curse: { time: "", x: 0, y: 0 },
+        fileType: fileTypes.HTML,
+        fileName: "index"
+      },
+      {
+        text: [{ time: "00:16", context: "what will you learn: <p>adding <button>button</button></p><p>adding text</p>", run: true }],
+        curse: { time: "", x: 0, y: 0 },
+        fileType: fileTypes.HTML,
+        fileName: "index"
+      },
+      {
+        text: [{ time: "00:17", context: "what will you learn: <p>adding <button>button</button></p><p>adding text</p><p>allow use to add input</p>", run: true }],
+        curse: { time: "", x: 0, y: 0 },
+        fileType: fileTypes.HTML,
+        fileName: "index"
+      },
+      {
+        text: [{ time: "00:20", context: "clearing output.", run: true }],
+        curse: { time: "", x: 0, y: 0 },
+        fileType: fileTypes.HTML,
+        fileName: "index"
+      },
+      {
+        text: [{ time: "00:21", context: "clearing output..", run: true }],
+        curse: { time: "", x: 0, y: 0 },
+        fileType: fileTypes.HTML,
+        fileName: "index"
+      },
+      {
+        text: [{ time: "00:22", context: "clearing output...", run: true }],
+        curse: { time: "", x: 0, y: 0 },
+        fileType: fileTypes.HTML,
+        fileName: "index"
+      },
+      {
+        text: [{ time: "00:23", context: "", run: true }],
+        curse: { time: "", x: 0, y: 0 },
+        fileType: fileTypes.HTML,
         fileName: "index"
       }
     ],
     audio: [
-      { time: "00:00", audioLink: "", audioStartTime: "02:00", audioEndTime: "07:00" }
+      { time: "00:00", audioLink: "/src/assets/audio/welcome.ogg", audioStartTime: "00:00", audioEndTime: "00:07" },
+      { time: "00:07", audioLink: "/src/assets/audio/courseOverview_pt1.ogg", audioStartTime: "00:01", audioEndTime: "00:07" },
+      { time: "00:14", audioLink: "/src/assets/audio/courseOverview_pt2.ogg", audioStartTime: "00:00", audioEndTime: "00:04" },
+      { time: "00:18", audioLink: "/src/assets/audio/courseOverview_pt2.ogg", audioStartTime: "00:06", audioEndTime: "00:08" },
+      { time: "00:20", audioLink: "/src/assets/audio/courseOverview_pt2.ogg", audioStartTime: "00:11", audioEndTime: "00:13" },
     ]
   });
 
   // -------- Handlers ----------
+  const playAudioSegment = (audioLink: string, start: string, end: string) => {
+    const audio = new Audio(audioLink);
+    const timeToSeconds = (time: string) => {
+      const [m, s] = time.split(":").map(Number);
+      return m * 60 + s;
+    };
+
+    const startSec = timeToSeconds(start);
+    const endSec = timeToSeconds(end);
+
+    // Wait for metadata (so duration & seeking works)
+    audio.addEventListener("loadedmetadata", () => {
+      audio.currentTime = startSec;
+      audio.play();
+
+      const checkEnd = setInterval(() => {
+        if (audio.currentTime >= endSec || isPlaying == false) {
+          audio.pause();
+          clearInterval(checkEnd);
+        }
+      }, 200);
+    });
+
+    // Handle errors gracefully
+    audio.addEventListener("error", () => {
+      console.error("Audio playback error for:", audioLink);
+    });
+  };
+
   const handleRemoveText = (mainIdx: number, textIdx: number) => {
     updateCourseInformation(prev => ({
       ...prev,
@@ -311,10 +392,14 @@ function EditMode() {
 
   // -------- Effects ----------
   useEffect(() => {
-    updateCourseInformation(prev => ({
-      ...prev,
-      files: [...prev.files, ...prev.main.map(p => `${p.fileName}.${p.fileType}`)]
-    }));
+    updateCourseInformation(prev => {
+      const combinedFiles = [...prev.files, ...prev.main.map(p => `${p.fileName}.${p.fileType}`)];
+      const uniqueFiles = Array.from(new Set(combinedFiles));
+      return {
+        ...prev,
+        files: uniqueFiles
+      }
+    });
   }, []);
 
   useEffect(() => {
@@ -323,14 +408,15 @@ function EditMode() {
     //increase the minutes and reset seconds
     if (trackTime%60) ()=>{ setTrackTime(0); setMinute(m => m+1);}
     const currentTime = (trackTime<10) ? `00:0${trackTime}` : (minute < 10) ? (`0${minute}:${trackTime}`) : (`${minute} : ${trackTime}`);
-    console.log(currentTime);
     courseInformation.main.map(m  =>{
       m.text.map(t =>{
         if(t.time == currentTime && t.run == true){
           updateOutputDisplayVar(t.context);
-          console.log(t.context);
         }
       })
+    })
+    courseInformation.audio.map(a =>{
+      if (a.time == currentTime) playAudioSegment(a.audioLink, a.audioStartTime, a.audioEndTime);
     })
     return () => clearTimeout(timer);
   }, [isPlaying, trackTime]);
@@ -363,7 +449,11 @@ function EditMode() {
             onRunChange={handleRunChange}
             onRemove={handleRemoveText}
           />
-          <AudioEditor audio={courseInformation.audio} onRemove={handleRemoveAudio} />
+          <AudioEditor
+            audio={courseInformation.audio}
+            onRemove={handleRemoveAudio}
+            onPlay={playAudioSegment}
+          />
         </div>
 
         <div id="three">
