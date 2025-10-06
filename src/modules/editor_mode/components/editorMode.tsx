@@ -202,7 +202,7 @@ function EditMode() {
   const [trackTime, setTrackTime] = useState(0);
   const [minute, setMinute] = useState(0);
   const [outputDisplayVar, updateOutputDisplayVar ] = useState("");
-
+  
   const [courseInformation, updateCourseInformation] = useState<EditModeSettings>({
     courseDetails: {
       courseName: courseName.split("-").join(" "),
@@ -286,6 +286,15 @@ function EditMode() {
   });
 
   // -------- Handlers ----------
+  const getTimeInSeconds = (timeStr: string) => {
+    const m = parseInt(timeStr.slice(0, 2), 10);
+    const s = parseInt(timeStr.slice(3), 10);
+    return m * 60 + s;
+  };
+  const lastTextTime = courseInformation.main.length ? getTimeInSeconds(courseInformation.main[courseInformation.main.length - 1].text.slice(-1)[0].time) : 0;
+  const lastAudioTime = courseInformation.audio.length ? getTimeInSeconds(courseInformation.audio[courseInformation.audio.length - 1].audioEndTime) : 0;
+  const timelineEndTime = Math.max(lastTextTime, lastAudioTime);
+  
   const playAudioSegment = (audioLink: string, start: string, end: string) => {
     const audio = new Audio(audioLink);
     const timeToSeconds = (time: string) => {
@@ -302,7 +311,7 @@ function EditMode() {
       audio.play();
 
       const checkEnd = setInterval(() => {
-        if (audio.currentTime >= endSec || isPlaying == false) {
+        if (audio.currentTime >= endSec) {
           audio.pause();
           clearInterval(checkEnd);
         }
@@ -404,6 +413,7 @@ function EditMode() {
 
   useEffect(() => {
     if (!isPlaying) return;
+    
     const timer = setTimeout(() => setTrackTime(t => t + 1), 1000);
     //increase the minutes and reset seconds
     if (trackTime%60) ()=>{ setTrackTime(0); setMinute(m => m+1);}
@@ -464,7 +474,7 @@ function EditMode() {
 
       <div>
         <button onClick={togglePlayPause}>{isPlaying ? "Pause" : "Play"}</button>
-        <p>current time: {trackTime}s</p>
+        <p>{trackTime} - {timelineEndTime}s</p>
       </div>
     </div>
   );
