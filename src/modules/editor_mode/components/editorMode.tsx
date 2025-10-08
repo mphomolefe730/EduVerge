@@ -479,6 +479,12 @@ function EditMode() {
     //increase the minutes and reset seconds
     if (trackTime%60) ()=>{ setTrackTime(0); setMinute(m => m+1);}
     const currentTime = (trackTime<10) ? `00:0${trackTime}` : (minute < 10) ? (`0${minute}:${trackTime}`) : (`${minute} : ${trackTime}`);
+    
+    //used to auto stop the trackline ---- need to continue adding
+    if (trackTime >= timelineEndTime) {
+      togglePlayPause();
+    }
+
     courseInformation.main.map(m  =>{
       m.text.map(t =>{
         if(t.time == currentTime && t.run == true){
