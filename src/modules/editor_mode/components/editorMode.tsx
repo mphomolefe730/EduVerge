@@ -1,7 +1,7 @@
 import { useParams } from "react-router-dom";
 import { useEffect, useState, type WebViewHTMLAttributes } from "react";
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faFloppyDisk, faCirclePlay, faSquarePlus } from '@fortawesome/free-regular-svg-icons';
+import { faFloppyDisk, faCirclePlay, faSquarePlus, faCirclePause } from '@fortawesome/free-regular-svg-icons';
 
 import './editorMode.css';
 import type { EditModeSettings } from '../../../configs/editModeSettings.ts';
@@ -193,6 +193,37 @@ const AudioEditor = ({
     </div>
   </div>
 );
+// ---------- Timeline ----------
+const Timeline = ({
+    current,
+    total,
+    onSeek
+  }: {
+    current: number;
+    total: number;
+    onSeek: (newTime: number) => void;
+  }) => {
+    const percentage = total > 0 ? (current / total) * 100 : 0;
+
+    const handleClick = (e: React.MouseEvent<HTMLDivElement>) => {
+      const rect = e.currentTarget.getBoundingClientRect();
+      const clickX = e.clientX - rect.left;
+      const newTime = (clickX / rect.width) * total;
+      onSeek(newTime);
+    };
+
+    return (
+      <div className="timelineContainer" onClick={handleClick}>
+        <div className="timelineTrack">
+          <div className="timelineProgress" style={{ width: `${percentage}%` }}> </div>
+        </div>
+        <div className="timelineTime">
+          <span>{Math.floor(current / 60)}:{String(Math.floor(current % 60)).padStart(2, "0")}</span>
+          <span>{Math.floor(total / 60)}:{String(Math.floor(total % 60)).padStart(2, "0")}</span>
+        </div>
+      </div>
+    );
+};
 
 // ---------- Main Component ----------
 function EditMode() {
@@ -472,9 +503,18 @@ function EditMode() {
         </div>
       </div>
 
-      <div>
-        <button onClick={togglePlayPause}>{isPlaying ? "Pause" : "Play"}</button>
-        <p>{trackTime} - {timelineEndTime}s</p>
+      <div className="editModeThreeContainer">
+        <button className="toolbarBtn" onClick={togglePlayPause}>
+          { isPlaying ? 
+            <><FontAwesomeIcon size="2x" icon={faCirclePause} /><p>PAUSE</p></> : 
+            <><FontAwesomeIcon size="2x" icon={faCirclePlay}/> <p>PLAY</p> </>
+          }
+        </button>
+        <Timeline
+          current={trackTime}
+          total={timelineEndTime}
+          onSeek={(newTime) => setTrackTime(Math.floor(newTime))}
+        />
       </div>
     </div>
   );
