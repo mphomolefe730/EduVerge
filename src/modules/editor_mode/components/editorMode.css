@@ -76,6 +76,15 @@
     width: 100%;
     min-height: 100px;
 }
+
+.courseSettings div{
+    margin: 0.5rem 0;
+    text-transform: uppercase;
+}
+.courseSettings input{
+    display: block;
+}
+
 /*---------------------------------------------------------*/
 .timelineContainer {
   width: 100%;

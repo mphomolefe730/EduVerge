@@ -85,6 +85,36 @@ const FilesSection = ({ files }: { files: string[] }) => (
     <button>REMOVE FILTER</button>
   </div>
 );
+// ---------- Course Settings ----------
+const CourseSettings = ( {courseDetails} : {courseDetails: EditModeSettings["courseDetails"]} ) => (
+  <div className="courseSettings">
+    <p className="containerTitle">COURSE SETTINGS</p>
+    <div>
+      <label> Course Name </label>
+      <input type="text" value={ courseDetails.courseName } readOnly />        
+    </div>
+    <div>
+      <label> Course Description </label>
+      <textarea value={ courseDetails.courseDescription }></textarea>        
+    </div>
+    <div>
+      <label> Prerequisites </label>
+      <input type="text" value={ courseDetails.prerequisites } readOnly />        
+    </div>
+    <div>
+      <label> Price </label>
+      <input type="number" value={ courseDetails.price } readOnly />        
+    </div>
+    <div>
+      <label> Access Period </label>
+      <input type="number" value={ courseDetails.accessPeriod } readOnly />        
+    </div>
+    <div>
+      <label> Course Collection </label>
+      <input type="type" value={ courseDetails.courseCollection } readOnly />        
+    </div>
+  </div>
+)
 
 // ---------- Main Editor ----------
 const MainEditor = ({
@@ -478,9 +508,7 @@ function EditMode() {
         <div id="one">
           <CourseDetails info={courseInformation} />
           <FilesSection files={courseInformation.files} />
-          <div>
-            <p className="containerTitle">COURSE SETTINGS</p>
-          </div>
+          <CourseSettings courseDetails={courseInformation.courseDetails}/>
         </div>
 
         <div id="two">
