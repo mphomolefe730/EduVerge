@@ -6,7 +6,7 @@
 }
 .editModeMainContainer{
     display: grid;
-    grid-template-rows: 1.5fr 6fr .5fr;
+    grid-template-rows: .8fr 6fr .5fr;
     height: 100svh;
     padding: 0 5px;
     gap: 5px;
@@ -24,15 +24,11 @@
     justify-content: space-between;
     align-items: center;
 }
-.editModeSubContainer{
-    margin: 0;
-    padding: 0;
-    border: 2px solid black;
-}
 
 .editModeSubContainerMain, .editModeSubContainerAudio{
     overflow: overlay;
-    max-height: 30svh;
+    max-height: 40svh;
+    border: 2px solid black;
 }
 .ContainerMain{
     max-height: 40%;

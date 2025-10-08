@@ -106,7 +106,7 @@ const MainEditor = ({
           <div className="mainContainer" key={`${mainIdx}-${textIdx}`}>
             <div className="mainSubContainer">
               <p style={{ backgroundColor: 'red', color: 'white' }}>{mainIdx + 1}</p>
-              <label>TIME</label>
+              <label>TIMELINE TIME</label>
               <input
                 type="text"
                 value={t.time}
@@ -167,11 +167,11 @@ const AudioEditor = ({
         <div className="mainContainer" key={idx}>
           <div className="mainSubContainer">
             <p style={{ backgroundColor: 'red', color: 'white' }}>{idx + 1}</p>
-            <label>TIME</label>
+            <label>TIMELINE TIME</label>
             <input type="text" value={field.time} readOnly />
-            <label>Start</label>
+            <label>START AUDIO AT</label>
             <input type="text" value={field.audioStartTime} readOnly />
-            <label>End</label>
+            <label>END AUDIO AT</label>
             <input type="text" value={field.audioEndTime} readOnly />
           </div>
 
