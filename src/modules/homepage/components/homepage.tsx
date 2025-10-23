@@ -20,7 +20,6 @@ function HomePage(){
 					</div>
 					
 					<nav className="hidden md:flex items-center space-x-8">
-					<a href="#" className="nav-link text-gray-300 hover:text-white font-medium">Home</a>
 					<a href="#" className="nav-link text-gray-300 hover:text-white font-medium">Study Guides</a>
 					<a href="#" className="nav-link text-gray-300 hover:text-white font-medium">Exam Portal</a>
 					<a href="#" className="nav-link text-gray-300 hover:text-white font-medium">Community</a>
