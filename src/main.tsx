@@ -8,6 +8,8 @@ import InteractiveMode from './modules/interactive_mode/components/interactiveMo
 import EditMode from './modules/editor_mode/components/editorMode.tsx';
 import EditModeForm from './modules/editor_mode/components/editModeForm.tsx';
 import Dashboard from './modules/dashboard/components/dashboard.tsx';
+import Login from './modules/shared/auth/login.tsx';
+import Register from './modules/shared/auth/register.tsx';
 
 const router = createBrowserRouter([
   { 
@@ -17,6 +19,12 @@ const router = createBrowserRouter([
   },{
     path: '/dashboard',
     element: <Dashboard/>,
+  },{
+    path: '/login',
+    element: <Login/>,
+  },{
+    path: '/register',
+    element: <Register/>,
   },{
     path: '/interactive/:courseId/:courseSection',
     element: <InteractiveMode/>,
