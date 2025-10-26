@@ -1,0 +1,118 @@
+.containerTitle{
+    text-transform: uppercase;
+    background-color: black;
+    color: white;
+    padding: 5px;
+}
+.editModeMainContainer{
+    display: grid;
+    grid-template-rows: .8fr 6fr .5fr;
+    height: 100svh;
+    padding: 0 5px;
+    gap: 5px;
+}
+.editModeSecondaryContainer{
+    display: grid;
+    grid-template-columns: 2fr 6fr 6fr;
+    gap: 10px;    
+    height: 100%;
+    overflow: hidden;
+    max-height: 85svh;
+}
+.editModeThreeContainer{
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.editModeSubContainerMain, .editModeSubContainerAudio{
+    overflow: overlay;
+    max-height: 40svh;
+    border: 2px solid black;
+}
+.ContainerMain{
+    max-height: 40%;
+}
+.toolbarBtn{
+    margin: 0px 10px;
+    border: 0;
+    background-color: white;
+}
+.toolbarElements{
+    padding: 0.55rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.fileElements button{
+    margin: 0.25rem;
+    background-color: transparent;
+    border: 0;
+    text-transform: uppercase;
+}
+.addType{
+    max-width: 180px;
+}
+.mainElementContainer{
+    display: grid;
+    grid-template-columns: 1.5fr 6fr 1fr;
+}
+
+.mainContainer{
+    display: grid;
+    grid-template-columns: 1fr 5fr 0.5fr;
+    gap: 0.1rem;
+    margin: 0.5rem;
+    box-shadow: 0px 0px 2px 0px black;
+    padding: 0.5rem;
+    border-radius: 0.5rem;
+}
+.mainSubContainer input{
+    margin: 0.5rem 0;
+}
+
+.mainSubContainer textarea{
+    width: 100%;
+    min-height: 100px;
+}
+
+.courseSettings div{
+    margin: 0.5rem 0;
+    text-transform: uppercase;
+}
+.courseSettings input{
+    display: block;
+}
+
+/*---------------------------------------------------------*/
+.timelineContainer {
+  width: 100%;
+  max-width: 600px;
+  margin: 10px auto;
+  user-select: none;
+  cursor: pointer;
+}
+
+.timelineTrack {
+  width: 100%;
+  height: 6px;
+  background-color: #ddd;
+  border-radius: 4px;
+  position: relative;
+  overflow: hidden;
+}
+
+.timelineProgress {
+  height: 100%;
+  background-color: #4caf50;
+  transition: width 0.2s ease;
+}
+
+.timelineTime {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.8rem;
+  color: #666;
+  margin-top: 4px;
+}

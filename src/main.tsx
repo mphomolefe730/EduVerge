@@ -26,7 +26,7 @@ const router = createBrowserRouter([
     path: '/register',
     element: <Register/>,
   },{
-    path: '/interactive/:courseId/:courseSection',
+    path: '/interactive/:courseCollection/:courseName',
     element: <InteractiveMode/>,
   },{
     path: '/create',
