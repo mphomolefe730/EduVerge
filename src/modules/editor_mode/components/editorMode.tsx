@@ -1,7 +1,7 @@
 import { useParams } from "react-router-dom";
 import { useEffect, useState, type WebViewHTMLAttributes } from "react";
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faFloppyDisk, faCirclePlay, faSquarePlus } from '@fortawesome/free-regular-svg-icons';
+import { faFloppyDisk, faCirclePlay, faSquarePlus, faCirclePause } from '@fortawesome/free-regular-svg-icons';
 
 import './editorMode.css';
 import type { EditModeSettings } from '../../../configs/editModeSettings.ts';
@@ -85,6 +85,36 @@ const FilesSection = ({ files }: { files: string[] }) => (
     <button>REMOVE FILTER</button>
   </div>
 );
+// ---------- Course Settings ----------
+const CourseSettings = ( {courseDetails} : {courseDetails: EditModeSettings["courseDetails"]} ) => (
+  <div className="courseSettings">
+    <p className="containerTitle">COURSE SETTINGS</p>
+    <div>
+      <label> Course Name </label>
+      <input type="text" value={ courseDetails.courseName } readOnly />        
+    </div>
+    <div>
+      <label> Course Description </label>
+      <textarea value={ courseDetails.courseDescription }></textarea>        
+    </div>
+    <div>
+      <label> Prerequisites </label>
+      <input type="text" value={ courseDetails.prerequisites } readOnly />        
+    </div>
+    <div>
+      <label> Price </label>
+      <input type="number" value={ courseDetails.price } readOnly />        
+    </div>
+    <div>
+      <label> Access Period </label>
+      <input type="number" value={ courseDetails.accessPeriod } readOnly />        
+    </div>
+    <div>
+      <label> Course Collection </label>
+      <input type="type" value={ courseDetails.courseCollection } readOnly />        
+    </div>
+  </div>
+)
 
 // ---------- Main Editor ----------
 const MainEditor = ({
@@ -106,7 +136,7 @@ const MainEditor = ({
           <div className="mainContainer" key={`${mainIdx}-${textIdx}`}>
             <div className="mainSubContainer">
               <p style={{ backgroundColor: 'red', color: 'white' }}>{mainIdx + 1}</p>
-              <label>TIME</label>
+              <label>TIMELINE TIME</label>
               <input
                 type="text"
                 value={t.time}
@@ -167,11 +197,11 @@ const AudioEditor = ({
         <div className="mainContainer" key={idx}>
           <div className="mainSubContainer">
             <p style={{ backgroundColor: 'red', color: 'white' }}>{idx + 1}</p>
-            <label>TIME</label>
+            <label>TIMELINE TIME</label>
             <input type="text" value={field.time} readOnly />
-            <label>Start</label>
+            <label>START AUDIO AT</label>
             <input type="text" value={field.audioStartTime} readOnly />
-            <label>End</label>
+            <label>END AUDIO AT</label>
             <input type="text" value={field.audioEndTime} readOnly />
           </div>
 
@@ -193,6 +223,37 @@ const AudioEditor = ({
     </div>
   </div>
 );
+// ---------- Timeline ----------
+const Timeline = ({
+    current,
+    total,
+    onSeek
+  }: {
+    current: number;
+    total: number;
+    onSeek: (newTime: number) => void;
+  }) => {
+    const percentage = total > 0 ? (current / total) * 100 : 0;
+
+    const handleClick = (e: React.MouseEvent<HTMLDivElement>) => {
+      const rect = e.currentTarget.getBoundingClientRect();
+      const clickX = e.clientX - rect.left;
+      const newTime = (clickX / rect.width) * total;
+      onSeek(newTime);
+    };
+
+    return (
+      <div className="timelineContainer" onClick={handleClick}>
+        <div className="timelineTrack">
+          <div className="timelineProgress" style={{ width: `${percentage}%` }}> </div>
+        </div>
+        <div className="timelineTime">
+          <span>{Math.floor(current / 60)}:{String(Math.floor(current % 60)).padStart(2, "0")}</span>
+          <span>{Math.floor(total / 60)}:{String(Math.floor(total % 60)).padStart(2, "0")}</span>
+        </div>
+      </div>
+    );
+};
 
 // ---------- Main Component ----------
 function EditMode() {
@@ -418,6 +479,12 @@ function EditMode() {
     //increase the minutes and reset seconds
     if (trackTime%60) ()=>{ setTrackTime(0); setMinute(m => m+1);}
     const currentTime = (trackTime<10) ? `00:0${trackTime}` : (minute < 10) ? (`0${minute}:${trackTime}`) : (`${minute} : ${trackTime}`);
+    
+    //used to auto stop the trackline ---- need to continue adding
+    if (trackTime >= timelineEndTime) {
+      togglePlayPause();
+    }
+
     courseInformation.main.map(m  =>{
       m.text.map(t =>{
         if(t.time == currentTime && t.run == true){
@@ -447,9 +514,7 @@ function EditMode() {
         <div id="one">
           <CourseDetails info={courseInformation} />
           <FilesSection files={courseInformation.files} />
-          <div>
-            <p className="containerTitle">COURSE SETTINGS</p>
-          </div>
+          <CourseSettings courseDetails={courseInformation.courseDetails}/>
         </div>
 
         <div id="two">
@@ -472,9 +537,18 @@ function EditMode() {
         </div>
       </div>
 
-      <div>
-        <button onClick={togglePlayPause}>{isPlaying ? "Pause" : "Play"}</button>
-        <p>{trackTime} - {timelineEndTime}s</p>
+      <div className="editModeThreeContainer">
+        <button className="toolbarBtn" onClick={togglePlayPause}>
+          { isPlaying ? 
+            <><FontAwesomeIcon size="2x" icon={faCirclePause} /><p>PAUSE</p></> : 
+            <><FontAwesomeIcon size="2x" icon={faCirclePlay}/> <p>PLAY</p> </>
+          }
+        </button>
+        <Timeline
+          current={trackTime}
+          total={timelineEndTime}
+          onSeek={(newTime) => setTrackTime(Math.floor(newTime))}
+        />
       </div>
     </div>
   );
