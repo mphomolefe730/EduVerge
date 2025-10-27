@@ -10,6 +10,7 @@ import './interactiveMode.css';
 import CodeMirror from '@uiw/react-codemirror';
 import { bespin } from '@uiw/codemirror-theme-bespin';
 import { html } from '@codemirror/lang-html';
+import type { UserNotes } from "../../../configs/userNotes.ts";
 
 const htmlCompletion = html({
   autoCloseTags: true,
@@ -67,7 +68,22 @@ const FilesSection = ({ files }: { files: string[] }) => (
     <button>REMOVE FILTER</button>
   </div>
 );
-
+// ---------- Notes ----------
+const NotesSection = ({userNotes}:{userNotes:UserNotes})=>(
+	<div>
+		<p className="containerTitle">NOTES</p>
+		{ 
+			userNotes.notes.map(n=>{
+				return (
+					<div>
+						<h3 style={{ whiteSpace: "nowrap", maxWidth: "7rem", overflow: "hidden", textOverflow: "ellipsis"}}>{n.noteId}</h3>
+						<p>{n.time}</p>
+					</div>
+				)
+			})
+		}
+	</div>
+)
 // ---------- Output Display ----------
 const OutputDisplay = ({ outputDisplayVar }: { outputDisplayVar: string }) => (
   <div dangerouslySetInnerHTML={{ __html: outputDisplayVar }}></div>
@@ -166,19 +182,35 @@ const MainEditor = ({
 
 // ---------- Main Component ----------
 function InteractiveMode() {
+	// ------------ handle changes to notes
+  const [originalEditorText, setOriginalEditorText] = useState(""); 
+  const [isEditorTouched, setIsEditorTouched] = useState(false); 
+  const [tempNoteId, setTempNoteId] = useState<string | null>(null); 
+	// ------------
   const { courseName = "", courseCollection = "" } = useParams();
   const [isPlaying, setIsPlaying] = useState(false);
   const [trackTime, setTrackTime] = useState(0);
   const [minute, setMinute] = useState(0);
   const [editorText, setEditorText] = useState("");
   const [outputDisplayVar, updateOutputDisplayVar] = useState("");
-
-//   function handleEditorChange(newText: string){
-//     return setEditorText(newText);
-//   };
+const [userNotes, updateUserNotes] = useState<UserNotes>({
+	id: "7920e181-8252-4ad7-9d8e-66c5f3cb1f76",
+	userId: "",
+	courseId: "",
+	lessonId: "",
+	notes: [{
+		noteId: "e1147fbd-7125-42f4-b043-e0f63be87af4",
+		time: "00:05", 
+		context: "", 
+		date: new Date('Sun Oct 26 2025 16:51:20 GMT+0200 (South Africa Standard Time)'),
+		fileType: fileTypes.HTML, 
+		fileName: "index"
+	}]
+})
 
   const [courseInformation, updateCourseInformation] = useState<EditModeSettings>({
-    courseDetails: {
+    id: "",
+	courseDetails: {
       courseName: courseName.split("-").join(" "),
       courseDescription: "",
       prerequisites: "",
@@ -190,18 +222,21 @@ function InteractiveMode() {
     courseSettings: [],
     main: [
       {
+		id: "",
         text: [{ time: "00:00", context: "<p>welcome to</p><h1>EDU VERGE</h1>", run: true }],
         curse: { time: "", x: 0, y: 0 },
         fileType: fileTypes.HTML,
         fileName: "index"
       },
       {
+		id: "",
         text: [{ time: "00:03", context: "<p>my name:</p><h1>Mpho Molefe</h1>", run: true }],
         curse: { time: "", x: 0, y: 0 },
         fileType: fileTypes.HTML,
         fileName: "index"
       },
       {
+		id: "",
         text: [{ time: "00:08", context: "what will you learn:", run: true }],
         curse: { time: "", x: 0, y: 0 },
         fileType: fileTypes.HTML,
@@ -209,10 +244,84 @@ function InteractiveMode() {
       }
     ],
     audio: [
-      { time: "00:00", audioLink: "/src/assets/audio/welcome.ogg", audioStartTime: "00:00", audioEndTime: "00:07" },
-      { time: "00:07", audioLink: "/src/assets/audio/courseOverview_pt1.ogg", audioStartTime: "00:01", audioEndTime: "00:07" }
+      { id: "", time: "00:00", audioLink: "/src/assets/audio/welcome.ogg", audioStartTime: "00:00", audioEndTime: "00:07" },
+      { id: "", time: "00:07", audioLink: "/src/assets/audio/courseOverview_pt1.ogg", audioStartTime: "00:01", audioEndTime: "00:07" }
     ]
   });
+
+  // Handle CodeMirror changes
+  const handleEditorChange = (value: string) => {
+    // If this is the first change and editor wasn't touched yet, create a new note
+    if (!isEditorTouched) {
+      console.log("editor touched");
+      setIsEditorTouched(true);
+      setOriginalEditorText(editorText); // Save original text for comparison
+      // Create a new temporary note
+      const newNoteId = `temp-${Date.now()}`;
+      setTempNoteId(newNoteId);      
+      const newNote = {
+        noteId: newNoteId,
+        time: `00:${String(trackTime).padStart(2, "0")}`,
+        context: value,
+        date: new Date(),
+        fileType: fileTypes.HTML,
+        fileName: "index"
+      };
+      
+      updateUserNotes(prev => ({
+        ...prev,
+        notes: [...prev.notes, newNote]
+      }));
+    } else if (tempNoteId) {
+      updateUserNotes(prev => ({
+        ...prev,
+        notes: prev.notes.map(note => 
+          note.noteId === tempNoteId 
+            ? { ...note, context: value, time: `00:${String(trackTime).padStart(2, "0")}` }
+            : note
+        )
+      }));
+    }
+    
+    setEditorText(value);
+  };
+
+  // Save note only if changes were made
+  const saveNoteIfChanged = () => {
+    if (isEditorTouched && tempNoteId) {
+      const currentNote = userNotes.notes.find(note => note.noteId === tempNoteId);
+      
+      if (currentNote && currentNote.context !== originalEditorText) {
+        // Changes were made, convert temp note to permanent
+        updateUserNotes(prev => ({
+          ...prev,
+          notes: prev.notes.map(note => 
+            note.noteId === tempNoteId 
+              ? { ...note, noteId: `note-${Date.now()}` } // Generate permanent ID
+              : note
+          )
+        }));
+        console.log("Note saved with changes");
+      } else {
+        // No changes made, remove the temporary note
+        updateUserNotes(prev => ({
+          ...prev,
+          notes: prev.notes.filter(note => note.noteId !== tempNoteId)
+        }));
+        console.log("Note discarded - no changes made");
+      }
+      
+      // Reset touch state
+      setIsEditorTouched(false);
+      setTempNoteId(null);
+    }
+  };
+  const handleRun = () => {
+    // Save note if changes were made before running
+    saveNoteIfChanged();
+    console.log("run");
+    // Add your run logic here
+  };
 
   // -------- Handlers ----------
   const getTimeInSeconds = (time: string) => {
@@ -244,7 +353,13 @@ function InteractiveMode() {
       }, 200);
     });
   };
-  const togglePlayPause = () => setIsPlaying((prev) => !prev);
+  const togglePlayPause = () => {
+	if (isPlaying) {
+      // Pausing - save note if changes were made
+      saveNoteIfChanged();
+    }
+    setIsPlaying((prev) => !prev);
+  };
 
   // -------- Effects ----------
   useEffect(() => {
@@ -278,6 +393,18 @@ function InteractiveMode() {
       if (a.time === currentTime) playAudioSegment(a.audioLink, a.audioStartTime, a.audioEndTime);
     });
 
+	if (isEditorTouched && tempNoteId && trackTime % 10 === 0) { // Auto-save every 10 seconds
+      const currentNote = userNotes.notes.find(note => note.noteId === tempNoteId);
+      if (currentNote && currentNote.context !== originalEditorText) {
+        console.log("Auto-saving note due to time progression");
+        saveNoteIfChanged();
+        // Create new temporary note for continued editing
+        setIsEditorTouched(true);
+        const newTempNoteId = `temp-${Date.now()}`;
+        setTempNoteId(newTempNoteId);
+        setOriginalEditorText(editorText);
+      }
+    }
     return () => clearTimeout(timer);
   }, [isPlaying, trackTime]);
 
@@ -290,25 +417,26 @@ function InteractiveMode() {
         <div id="one">
           <CourseDetails info={courseInformation} />
           <FilesSection files={courseInformation.files} />
+		      <NotesSection userNotes={userNotes}/>
         </div>
 
-        <div id="two" onClick={() => console.log("CodeMirror container pressed")}>
-			<CodeMirror 
-				// onChange={handleEditorChange} 
-				theme={bespin} 
-				height="100vh" 
-				value={editorText}
-				extensions={[htmlCompletion]}
-				basicSetup={{
-					lineNumbers: true,
-					highlightActiveLine: true,
-					bracketMatching: true,
-					closeBrackets: true,
-					autocompletion: true,
-					indentOnInput: true,
-				}}
-				id="code-editor"
-			/>
+        <div id="two" onClick={()=>handleEditorChange}>
+        <CodeMirror 
+          onChange={handleEditorChange}
+          theme={bespin} 
+          height="100vh" 
+          value={editorText}
+          extensions={[htmlCompletion]}
+          basicSetup={{
+            lineNumbers: true,
+            highlightActiveLine: true,
+            bracketMatching: true,
+            closeBrackets: true,
+            autocompletion: true,
+            indentOnInput: true,
+          }}
+          id="code-editor"
+        />
 		</div>
 
         <div id="three">

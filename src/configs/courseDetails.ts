@@ -1,6 +1,5 @@
-import type { Option } from "./option";
-
 export interface CourseDetails{
+    id:string,
     courseName: string,
     courseDescription: string,
     prerequisites: string,
