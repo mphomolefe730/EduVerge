@@ -10,7 +10,7 @@ import './interactiveMode.css';
 import CodeMirror from '@uiw/react-codemirror';
 import { bespin } from '@uiw/codemirror-theme-bespin';
 import { html } from '@codemirror/lang-html';
-import type { UserNotes } from "../../../configs/userNotes.ts";
+import type { UserNotes, Note } from "../../../configs/userNotes.ts";
 
 const htmlCompletion = html({
   autoCloseTags: true,
@@ -55,6 +55,7 @@ const FilesSection = ({ files }: { files: string[] }) => (
     <button>REMOVE FILTER</button>
   </div>
 );
+
 // ---------- Notes ----------
 const NotesSection = ({ 
   userNotes, 
@@ -147,92 +148,39 @@ const Timeline = ({
   );
 };
 
-// ---------- Main Editor ----------
-const MainEditor = ({
-  main,
-  editorText,
-  onChange
-}: {
-  main: InteractiveModeModel[];
-  editorText: string;
-  onChange: (newText: string) => void;
-}) => {
-  const editorContainerRef = useRef<HTMLDivElement | null>(null);
-  const editorViewRef = useRef<EditorView | null>(null);
-
-  useEffect(() => {
-    if (!editorContainerRef.current) return;
-
-    // Create editor once
-    if (!editorViewRef.current) {
-      editorViewRef.current = new EditorView({
-        parent: editorContainerRef.current,
-        doc: editorText,
-        extensions: [
-          basicSetup,
-          EditorView.updateListener.of((update) => {
-            if (update.docChanged) {
-              onChange(update.state.doc.toString());
-            }
-          })
-        ]
-      });
-    }
-
-    // Sync external text updates
-    const view = editorViewRef.current;
-    if (view && editorText !== view.state.doc.toString()) {
-      const transaction = view.state.update({
-        changes: { from: 0, to: view.state.doc.length, insert: editorText }
-      });
-      view.dispatch(transaction);
-    }
-
-    return () => {
-      editorViewRef.current?.destroy();
-      editorViewRef.current = null;
-    };
-  }, [editorText]);
-
-  return (
-    <div className="editModeSubContainerMain editModeSubContainer">
-      <p className="containerTitle">MAIN</p>
-      <div id="ContainerMain" ref={editorContainerRef}></div>
-    </div>
-  );
-};
-
 // ---------- Main Component ----------
 function InteractiveMode() {
-	// ------------ handle changes to notes
+  // ------------ Application State Management ------------
+  const [appState, setAppState] = useState<'normal' | 'editNote' | 'running'>('normal');
   const [originalEditorText, setOriginalEditorText] = useState(""); 
   const [isEditorTouched, setIsEditorTouched] = useState(false); 
   const [tempNoteId, setTempNoteId] = useState<string | null>(null); 
-	const [currentNoteId, setCurrentNoteId] = useState<string | null>(null); // Track currently loaded note
-  // ------------
+  const [currentNoteId, setCurrentNoteId] = useState<string | null>(null);
+  
   const { courseName = "", courseCollection = "" } = useParams();
   const [isPlaying, setIsPlaying] = useState(false);
   const [trackTime, setTrackTime] = useState(0);
-  const [minute, setMinute] = useState(0);
   const [editorText, setEditorText] = useState("");
   const [outputDisplayVar, updateOutputDisplayVar] = useState("");
-const [userNotes, updateUserNotes] = useState<UserNotes>({
-	id: "7920e181-8252-4ad7-9d8e-66c5f3cb1f76",
-	userId: "",
-	courseId: "",
-	lessonId: "",
-	notes: [
-  ]
-})
+  
+  const [userNotes, updateUserNotes] = useState<UserNotes>({
+    id: "7920e181-8252-4ad7-9d8e-66c5f3cb1f76",
+    userId: "",
+    courseId: "",
+    lessonId: "",
+    notes: []
+  });
 
-// ---------- Toolbar ----------
+  // ---------- Toolbar ----------
   const Toolbar = ({ onRun }: { onRun: () => void }) => (
     <div className="editModeSubContainer">
       <p className="containerTitle">
-        {currentNoteId ? "EDITING NOTE" : "Tool Bar"}
-        {currentNoteId && (
+        {appState === 'editNote' ? "EDITING NOTE" : 
+         appState === 'running' ? "CODE EXECUTED - EDIT MODE" : "Tool Bar"}
+        
+        {(appState === 'editNote' || appState === 'running') && (
           <button 
-            onClick={returnToCourseContent}
+            onClick={returnToNormalMode}
             style={{ 
               marginLeft: '1rem', 
               padding: '0.25rem 0.5rem',
@@ -257,7 +205,6 @@ const [userNotes, updateUserNotes] = useState<UserNotes>({
     </div>
   );
 
-
   const [courseInformation, updateCourseInformation] = useState<EditModeSettings>({
     id: "",
     courseDetails: {
@@ -273,21 +220,21 @@ const [userNotes, updateUserNotes] = useState<UserNotes>({
     courseSettings: [],
     main: [
       {
-		id: "",
+        id: "",
         text: [{ time: "00:00", context: "<p>welcome to</p><h1>EDU VERGE</h1>", run: true }],
         curse: { time: "", x: 0, y: 0 },
         fileType: fileTypes.HTML,
         fileName: "index"
       },
       {
-		id: "",
+        id: "",
         text: [{ time: "00:03", context: "<p>my name:</p><h1>Mpho Molefe</h1>", run: true }],
         curse: { time: "", x: 0, y: 0 },
         fileType: fileTypes.HTML,
         fileName: "index"
       },
       {
-		id: "",
+        id: "",
         text: [{ time: "00:08", context: "what will you learn:", run: true }],
         curse: { time: "", x: 0, y: 0 },
         fileType: fileTypes.HTML,
@@ -303,18 +250,18 @@ const [userNotes, updateUserNotes] = useState<UserNotes>({
   // Handle CodeMirror changes
   const handleEditorChange = (value: string) => {
     // If we're currently editing a specific note (not the main course content)
-    if (currentNoteId) {
+    if (currentNoteId || appState === 'editNote') {
       updateUserNotes(prev => ({
         ...prev,
         notes: prev.notes.map(note => 
-          note.noteId === currentNoteId 
+          note.noteId === (currentNoteId || tempNoteId)
             ? { ...note, context: value }
             : note
         )
       }));
     } 
     // If we're editing the main course content and this is the first change
-    else if (!isEditorTouched) {
+    else if (!isEditorTouched && appState === 'normal') {
       console.log("editor touched - creating new note");
       setIsEditorTouched(true);
       setOriginalEditorText(editorText);
@@ -336,7 +283,7 @@ const [userNotes, updateUserNotes] = useState<UserNotes>({
       }));
     } 
     // If we're editing the main course content and have a temp note
-    else if (tempNoteId) {
+    else if (tempNoteId && appState === 'normal') {
       updateUserNotes(prev => ({
         ...prev,
         notes: prev.notes.map(note => 
@@ -381,45 +328,62 @@ const [userNotes, updateUserNotes] = useState<UserNotes>({
     }
   };
 
-  // Handle note click
-  const handleNoteClick = (note: Note) => {
-    console.log("Note clicked:", note.noteId);
+  // Handle Run button - Execute code and enter edit note mode
+  const handleRun = () => {
+    console.log("Executing code and entering edit mode");    
+    // Save any pending changes first
+    saveNoteIfChanged();    
+    // Execute the code - display editor content in output
+    updateOutputDisplayVar(editorText);    
+    // Create a temporary note for the executed code
+    const runNoteId = `run-${Date.now()}`;
+    setTempNoteId(runNoteId);
+    const runNote = {
+      noteId: runNoteId,
+      time: `00:${String(trackTime).padStart(2, "0")}`,
+      context: editorText,
+      date: new Date(),
+      fileType: fileTypes.HTML,
+      fileName: "executed-code"
+    };
     
-    // Save any pending changes from current editing session
-    saveNoteIfChanged();
+    updateUserNotes(prev => ({
+      ...prev,
+      notes: [...prev.notes, runNote]
+    }));
     
-    // Pause the course if playing
-    if (isPlaying) {
-      setIsPlaying(false);
-      console.log("Course paused");
-    }
-    
-    // Load the note content into the editor
-    setEditorText(note.context);
-    setCurrentNoteId(note.noteId);
-    
-    console.log("Note loaded into editor");
+    // Enter edit note mode
+    setAppState('running');
+    setCurrentNoteId(runNoteId);
+    setIsEditorTouched(true);
+    setOriginalEditorText(editorText);    
+    console.log("Code executed. Application is now in edit mode.");
   };
 
-  // Handle returning to course content
-  const returnToCourseContent = () => {
-    // Save any changes made to the current note
-    if (currentNoteId) {
-      const currentNote = userNotes.notes.find(note => note.noteId === currentNoteId);
+  // Return to normal course mode
+  const returnToNormalMode = () => {
+    console.log("Returning to normal course mode");
+    
+    // Save any changes made during edit mode
+    if (currentNoteId || tempNoteId) {
+      const noteId = currentNoteId || tempNoteId;
+      const currentNote = userNotes.notes.find(note => note.noteId === noteId);
+      
       if (currentNote) {
         updateUserNotes(prev => ({
           ...prev,
           notes: prev.notes.map(note => 
-            note.noteId === currentNoteId 
+            note.noteId === noteId 
               ? { ...note, context: editorText }
               : note
           )
         }));
-        console.log("Note changes saved");
+        console.log("Changes saved before returning to normal mode");
       }
     }
     
-    // Reset to course content
+    // Reset to normal state
+    setAppState('normal');
     setCurrentNoteId(null);
     
     // Load the current course content based on trackTime
@@ -436,22 +400,49 @@ const [userNotes, updateUserNotes] = useState<UserNotes>({
     });
     
     if (!foundContent) {
-      setEditorText(""); // Or keep current content
+      setEditorText("");
     }
     
-    console.log("Returned to course content");
+    // Reset touch state
+    setIsEditorTouched(false);
+    setTempNoteId(null);
+    
+    console.log("Returned to normal course mode");
   };
 
-  const handleRun = () => {
-    // If we're editing a note, return to course content first
-    if (currentNoteId) {
-      returnToCourseContent();
-    } else {
-      // Save note if changes were made before running
-      saveNoteIfChanged();
+  // Handle note click
+  const handleNoteClick = (note: Note) => {
+    console.log("Note clicked:", note.noteId);
+    
+    // Save any pending changes from current editing session
+    saveNoteIfChanged();
+    
+    // Pause the course if playing
+    if (isPlaying) {
+      setIsPlaying(false);
+      console.log("Course paused");
     }
-    console.log("run");
-    // Add your run logic here
+    
+    // Load the note content into the editor and enter edit mode
+    setEditorText(note.context);
+    setCurrentNoteId(note.noteId);
+    setAppState('editNote');
+    
+    console.log("Note loaded into editor - edit mode activated");
+  };
+
+  const togglePlayPause = () => {
+    if (isPlaying) {
+      // Pausing - save note if changes were made
+      saveNoteIfChanged();
+      setIsPlaying(false);
+    } else {
+      // Starting to play - always return to normal mode first
+      if (appState !== 'normal') {
+        returnToNormalMode();
+      }
+      setIsPlaying(true);
+    }
   };
 
   // -------- Handlers ----------
@@ -459,6 +450,7 @@ const [userNotes, updateUserNotes] = useState<UserNotes>({
     const [m, s] = time.split(":").map(Number);
     return m * 60 + s;
   };
+  
   const lastTextTime = courseInformation.main.length
     ? getTimeInSeconds(courseInformation.main.at(-1)!.text.at(-1)!.time)
     : 0;
@@ -484,17 +476,6 @@ const [userNotes, updateUserNotes] = useState<UserNotes>({
       }, 200);
     });
   };
-  
-  const togglePlayPause = () => {
-    if (isPlaying) {
-      // Pausing - save note if changes were made
-      saveNoteIfChanged();
-    } else if (currentNoteId) {
-      // If playing while editing a note, return to course content
-      returnToCourseContent();
-    }
-    setIsPlaying((prev) => !prev);
-  };
 
   // -------- Effects ----------
   useEffect(() => {
@@ -506,19 +487,21 @@ const [userNotes, updateUserNotes] = useState<UserNotes>({
   }, []);
 
   useEffect(() => {
-    if (!isPlaying) return;
+    if (!isPlaying || appState !== 'normal') return;
 
     const timer = setTimeout(() => setTrackTime((t) => t + 1), 1000);
     const currentTime = `00:${String(trackTime).padStart(2, "0")}`;
 
-    if (trackTime >= timelineEndTime) togglePlayPause();
+    if (trackTime >= timelineEndTime) {
+      setIsPlaying(false);
+    }
 
     courseInformation.main.forEach((m) => {
       m.text.forEach((t) => {
         if (t.time === currentTime && t.run) {
           updateOutputDisplayVar(t.context);
         } 
-		if (t.time === currentTime) {
+        if (t.time === currentTime) {
           setEditorText(t.context);
         }
       });
@@ -528,34 +511,34 @@ const [userNotes, updateUserNotes] = useState<UserNotes>({
       if (a.time === currentTime) playAudioSegment(a.audioLink, a.audioStartTime, a.audioEndTime);
     });
 
-	if (isEditorTouched && tempNoteId && trackTime % 5 === 0) { // Auto-save every 5 seconds
+    if (isEditorTouched && tempNoteId && trackTime % 5 === 0) {
       const currentNote = userNotes.notes.find(note => note.noteId === tempNoteId);
       if (currentNote && currentNote.context !== originalEditorText) {
         console.log("Auto-saving note due to time progression");
         saveNoteIfChanged();
-        // Create new temporary note for continued editing
         setIsEditorTouched(true);
         const newTempNoteId = `temp-${Date.now()}`;
         setTempNoteId(newTempNoteId);
         setOriginalEditorText(editorText);
       }
     }
+    console.log(userNotes.notes);
+    
     return () => clearTimeout(timer);
-  }, [isPlaying, trackTime]);
+  }, [isPlaying, trackTime, appState]);
 
   // -------- Render ----------
   return (
     <div className="editModeMainContainer">
-      <Toolbar onRun={() => console.log("run")} />
+      <Toolbar onRun={handleRun} />
 
       <div className="editModeSecondaryContainer">
         <div id="one">
           <CourseDetails info={courseInformation} />
           <FilesSection files={courseInformation.files} />
-		      <NotesSection userNotes={userNotes} onNoteClick={handleNoteClick}/>
+          <NotesSection userNotes={userNotes} onNoteClick={handleNoteClick}/>
         </div>
 
-        <div id="two" onClick={()=>handleEditorChange}>
         <div id="two">
           <CodeMirror 
             onChange={handleEditorChange}
@@ -573,20 +556,22 @@ const [userNotes, updateUserNotes] = useState<UserNotes>({
             }}
             id="code-editor"
           />
-          {currentNoteId && (
+          {(appState === 'editNote' || appState === 'running') && (
             <div style={{
               padding: '0.5rem',
-              backgroundColor: '#e3f2fd',
-              border: '1px solid #2196f3',
+              backgroundColor: appState === 'running' ? '#fff3cd' : '#e3f2fd',
+              border: `1px solid ${appState === 'running' ? '#ffc107' : '#2196f3'}`,
               borderRadius: '4px',
               marginTop: '0.5rem',
-              fontSize: '0.9rem'
+              fontSize: '0.9rem',
+              color: appState === 'running' ? '#856404' : '#1565c0'
             }}>
-              📝 Editing Note - Changes are saved automatically
+              {appState === 'running' 
+                ? '🚀 Code Executed - You are now in edit mode. Play course or click "Return to Course" to resume.' 
+                : '📝 Editing Note - Changes are saved automatically'}
             </div>
           )}
         </div>
-		</div>
 
         <div id="three">
           <p className="containerTitle">Output</p>
@@ -595,7 +580,7 @@ const [userNotes, updateUserNotes] = useState<UserNotes>({
       </div>
 
       <div className="editModeThreeContainer">
-        <button className="toolbarBtn" onClick={togglePlayPause}>
+        <button className="toolbarBtn" onClick={togglePlayPause} disabled={appState === 'running'}>
           {isPlaying ? (
             <>
               <FontAwesomeIcon size="2x" icon={faCirclePause} />
