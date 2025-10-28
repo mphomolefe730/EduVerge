@@ -1,5 +1,6 @@
 import { useState } from "react";
 import "./style.css";
+import UserService from "../../../services/user.service";
 
 export default function Login() {
   const [form, setForm] = useState({ email: "", password: "" });
@@ -10,7 +11,14 @@ export default function Login() {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    alert(`Logged in with: ${form.email}`);
+    UserService
+    .loginUser({email: form.email, password: form.password})
+    .then((obj:any)=>{
+      console.log(obj)
+    })
+    .catch((err)=>{
+      console.log(err);
+    });
   };
 
   return (
