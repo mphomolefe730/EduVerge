@@ -24,7 +24,7 @@ const Toolbar = ({
   selectedType: string;
   setSelectedType: (val: string) => void;
 }) => (
-  <div className='editModeSubContainer'>
+  <div className='editModeSubContainer bg-white rounded-xl shadow m-1'>
     <p className="containerTitle">Tool Bar</p>
     <div className='toolbarElements'>
       <button className='toolbarBtn' onClick={onSave} type="button">
@@ -265,7 +265,9 @@ function EditMode() {
   const [outputDisplayVar, updateOutputDisplayVar ] = useState("");
   
   const [courseInformation, updateCourseInformation] = useState<EditModeSettings>({
+    id: "",
     courseDetails: {
+      id: "",
       courseName: courseName.split("-").join(" "),
       courseDescription: "",
       prerequisites: "",
@@ -276,61 +278,71 @@ function EditMode() {
     files: [],
     courseSettings: [],
     main: [
-      {
+      { 
+        id: "", 
         text: [{ time: "00:00", context: "<p>welcome to</p><h1>EDU VERGE</h1>", run: true }],
         curse: { time: "", x: 0, y: 0 },
         fileType: fileTypes.HTML,
         fileName: "index"
       },
       {
+        id: "", 
         text: [{ time: "00:03", context: "<p>my name:</p><h1>Mpho Molefe</h1>", run: true }],
         curse: { time: "", x: 0, y: 0 },
         fileType: fileTypes.HTML,
         fileName: "index"
       },
       {
+        id: "", 
         text: [{ time: "00:08", context: "what will you learn:", run: true }],
         curse: { time: "", x: 0, y: 0 },
         fileType: fileTypes.HTML,
         fileName: "index"
       },
       {
+        id: "", 
         text: [{ time: "00:14", context: "what will you learn: <p>adding <button>button</button></p>", run: true }],
         curse: { time: "", x: 0, y: 0 },
         fileType: fileTypes.HTML,
         fileName: "index"
       },
       {
+        id: "", 
         text: [{ time: "00:16", context: "what will you learn: <p>adding <button>button</button></p><p>adding text</p>", run: true }],
         curse: { time: "", x: 0, y: 0 },
         fileType: fileTypes.HTML,
         fileName: "index"
       },
       {
+        id: "", 
         text: [{ time: "00:17", context: "what will you learn: <p>adding <button>button</button></p><p>adding text</p><p>allow use to add input</p>", run: true }],
         curse: { time: "", x: 0, y: 0 },
         fileType: fileTypes.HTML,
         fileName: "index"
       },
       {
+        id: "", 
         text: [{ time: "00:20", context: "clearing output.", run: true }],
         curse: { time: "", x: 0, y: 0 },
         fileType: fileTypes.HTML,
         fileName: "index"
       },
       {
+        id: "", 
         text: [{ time: "00:21", context: "clearing output..", run: true }],
         curse: { time: "", x: 0, y: 0 },
         fileType: fileTypes.HTML,
         fileName: "index"
       },
       {
+        id: "", 
         text: [{ time: "00:22", context: "clearing output...", run: true }],
         curse: { time: "", x: 0, y: 0 },
         fileType: fileTypes.HTML,
         fileName: "index"
       },
       {
+        id: "", 
         text: [{ time: "00:23", context: "", run: true }],
         curse: { time: "", x: 0, y: 0 },
         fileType: fileTypes.HTML,
@@ -338,11 +350,11 @@ function EditMode() {
       }
     ],
     audio: [
-      { time: "00:00", audioLink: "/src/assets/audio/welcome.ogg", audioStartTime: "00:00", audioEndTime: "00:07" },
-      { time: "00:07", audioLink: "/src/assets/audio/courseOverview_pt1.ogg", audioStartTime: "00:01", audioEndTime: "00:07" },
-      { time: "00:14", audioLink: "/src/assets/audio/courseOverview_pt2.ogg", audioStartTime: "00:00", audioEndTime: "00:04" },
-      { time: "00:18", audioLink: "/src/assets/audio/courseOverview_pt2.ogg", audioStartTime: "00:06", audioEndTime: "00:08" },
-      { time: "00:20", audioLink: "/src/assets/audio/courseOverview_pt2.ogg", audioStartTime: "00:11", audioEndTime: "00:13" },
+      { id: "",  time: "00:00", audioLink: "/src/assets/audio/welcome.ogg", audioStartTime: "00:00", audioEndTime: "00:07" },
+      { id: "",  time: "00:07", audioLink: "/src/assets/audio/courseOverview_pt1.ogg", audioStartTime: "00:01", audioEndTime: "00:07" },
+      { id: "",  time: "00:14", audioLink: "/src/assets/audio/courseOverview_pt2.ogg", audioStartTime: "00:00", audioEndTime: "00:04" },
+      { id: "",  time: "00:18", audioLink: "/src/assets/audio/courseOverview_pt2.ogg", audioStartTime: "00:06", audioEndTime: "00:08" },
+      { id: "",  time: "00:20", audioLink: "/src/assets/audio/courseOverview_pt2.ogg", audioStartTime: "00:11", audioEndTime: "00:13" },
     ]
   });
 
@@ -408,6 +420,7 @@ function EditMode() {
         main: [
           ...prev.main,
           {
+            id: "",
             text: [{ time: "", context: "", run: false }],
             curse: { time: "", x: 0, y: 0 },
             fileType: fileTypes.HTML,
@@ -418,7 +431,7 @@ function EditMode() {
     } else if (selectedAddType === "audio editor") {
       updateCourseInformation(prev => ({
         ...prev,
-        audio: [...prev.audio, { time: "", audioLink: "", audioStartTime: "", audioEndTime: "" }]
+        audio: [...prev.audio, { id: "", time: "", audioLink: "", audioStartTime: "", audioEndTime: "" }]
       }));
     } else {
       console.log(`${selectedAddType} added`);
@@ -510,7 +523,7 @@ function EditMode() {
         setSelectedType={setSelectedAddType}
       />
 
-      <div className='editModeSecondaryContainer'>
+      <div className='editModeSecondaryContainer bg-white rounded-xl shadow m-1'>
         <div id="one">
           <CourseDetails info={courseInformation} />
           <FilesSection files={courseInformation.files} />
@@ -537,7 +550,7 @@ function EditMode() {
         </div>
       </div>
 
-      <div className="editModeThreeContainer">
+      <div className="editModeThreeContainer bg-white rounded-xl shadow m-1">
         <button className="toolbarBtn" onClick={togglePlayPause}>
           { isPlaying ? 
             <><FontAwesomeIcon size="2x" icon={faCirclePause} /><p>PAUSE</p></> : 

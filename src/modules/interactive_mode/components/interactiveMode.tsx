@@ -173,7 +173,7 @@ function InteractiveMode() {
 
   // ---------- Toolbar ----------
   const Toolbar = ({ onRun }: { onRun: () => void }) => (
-    <div className="editModeSubContainer">
+    <div className="bg-white rounded-xl shadow m-1">
       <p className="containerTitle">
         {appState === 'editNote' ? "EDITING NOTE" : 
          appState === 'running' ? "CODE EXECUTED - EDIT MODE" : "Tool Bar"}
@@ -532,7 +532,7 @@ function InteractiveMode() {
     <div className="editModeMainContainer">
       <Toolbar onRun={handleRun} />
 
-      <div className="editModeSecondaryContainer">
+      <div className="editModeSecondaryContainer bg-white rounded-xl shadow m-1">
         <div id="one">
           <CourseDetails info={courseInformation} />
           <FilesSection files={courseInformation.files} />
@@ -579,7 +579,7 @@ function InteractiveMode() {
         </div>
       </div>
 
-      <div className="editModeThreeContainer">
+      <div className="editModeThreeContainer bg-white rounded-xl shadow m-1">
         <button className="toolbarBtn" onClick={togglePlayPause} disabled={appState === 'running'}>
           {isPlaying ? (
             <>

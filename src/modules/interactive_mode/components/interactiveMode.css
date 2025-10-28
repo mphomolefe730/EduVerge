@@ -7,6 +7,7 @@
 .editModeMainContainer{
     display: grid;
     grid-template-rows: .8fr 6fr .5fr;
+    background-color: #0f172a;
     height: 100svh;
     padding: 0 5px;
     gap: 5px;
