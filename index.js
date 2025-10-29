@@ -8,7 +8,7 @@ const db = mysql.createConnection({
   host: 'eduverge.cl0g8i8qykzl.eu-north-1.rds.amazonaws.com',
   user: 'admin',
   password: 'IAMKKO22',
-  database: 'eduverge',
+  database: 'EduVerge',
   port: 3306
 });
 
