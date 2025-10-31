@@ -1,23 +1,35 @@
 import { useState } from "react";
 import "./style.css";
 import UserService from "../../../services/user.service";
+import { useNavigate } from "react-router-dom";
 
 export default function Login() {
   const [form, setForm] = useState({ email: "", password: "" });
+  const [error, setError] = useState("");
+  const navigate = useNavigate();
 
   const handleChange = (e:any) => {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
 
   const handleSubmit = (e:any) => {
+    setError("");
     e.preventDefault();
     UserService
     .loginUser({email: form.email, password: form.password})
     .then((obj:any)=>{
-      console.log(obj)
+      if(obj.data?.error){
+        setError("User not found or incorrect credentials.");
+        return
+      }
+      if (obj.status === 200 && obj.data.message === "Login Successful")
+      {
+        sessionStorage.setItem("EduVergeToken", obj.data.token);
+        navigate("/dashboard");
+      }
     })
     .catch((err)=>{
-      console.log(err);
+       setError(err.error);
     });
   };
 
@@ -60,6 +72,7 @@ export default function Login() {
           Login
         </button>
         <small className="form-text">Don't have an account? <a className="actionLink" href="/register">Sign Up</a></small>
+        {error && <p>{error}</p>}
       </form>
     </div>
   );

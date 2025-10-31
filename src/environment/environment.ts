@@ -1,3 +1,3 @@
 export const environment = {
-    BackendApi: ''
+    BackendApi: 'http://localhost:5000/api',
 }

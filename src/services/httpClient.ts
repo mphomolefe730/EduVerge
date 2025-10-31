@@ -8,15 +8,15 @@ const httpClient = axios.create({
   },
 });
 
-httpClient.interceptors.request.use(
-  config => {
-    const token = localStorage.getItem('authToken');
-    if (token) {
-      config.headers.Authorization = `Bearer ${token}`;
-    }
-    return config;
-  },
-  error => Promise.reject(error)
-);
+// httpClient.interceptors.request.use(
+//   config => {
+//     const token = localStorage.getItem('EduVergeToken');
+//     if (token) {
+//       config.headers.Authorization = `Bearer ${token}`;
+//     }
+//     return config;
+//   },
+//   error => Promise.reject(error)
+// );
 
 export default httpClient;

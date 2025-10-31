@@ -1,10 +1,12 @@
 import { useState } from "react";
 import "./style.css";
 import UserService from "../../../services/user.service";
+import { useNavigate } from "react-router-dom";
 
 export default function Register() {
-  const [form, setForm] = useState({ firstName: "", lastName: "", email: "", password: "", repeatPassword: "" });
+  const [form, setForm] = useState({ username: "", userType: "Student", email: "", password: "", repeatPassword: "" });
   const [errors, setFormErrors] = useState<string[]>([]);
+  const navigate = useNavigate();
 
   const handleChange = (e:any) => {
     setForm({ ...form, [e.target.name]: e.target.value });
@@ -21,13 +23,13 @@ export default function Register() {
       newErrors.push("Password must be at least 6 characters");
     }
     setFormErrors(newErrors);
-
     if (newErrors.length === 0) {
       console.log("Form submitted successfully!");
       UserService
-      .registerUser({ firstName: form.firstName, lastName: form.lastName, email: form.email, password: form.password})
+      .registerUser({ username: form.username, email: form.email, userType: form.userType, password: form.password, profilePicture: ""})
       .then((obj:any)=>{
-        console.log(obj)
+        console.log(obj)        
+        navigate("/login");
       })
       .catch((err)=>{
         console.log(err);
@@ -52,21 +54,24 @@ export default function Register() {
       >
         <h2 className="text-2xl font-semibold text-center mb-4">Register</h2>
         <input
-          name="firstName"
+          name="username"
           type="text"
-          placeholder="First Name"
+          placeholder="username"
           onChange={handleChange}
-          value={form.firstName}
+          value={form.username}
           className="w-full mb-3 p-2 border rounded-md"
         />
-        <input
-          name="lastName"
-          type="text"
-          placeholder="Last Name"
-          onChange={handleChange}
-          value={form.lastName}
+        <select 
+          name="userType" 
           className="w-full mb-3 p-2 border rounded-md"
-        />
+          onChange={handleChange} >
+          <option
+            style={{color: "black"}}
+            value="student">Student</option>
+          <option
+            style={{color: "black"}} 
+            value="tutor">Tutor</option>
+        </select>
         <input
           name="email"
           type="email"
