@@ -21,9 +21,9 @@ function HomePage(){
 					
 					<nav className="hidden md:flex items-center space-x-8">
 					<a href="#" className="nav-link text-gray-300 hover:text-white font-medium">Study Guides</a>
-					<a href="#" className="nav-link text-gray-300 hover:text-white font-medium">Exam Portal</a>
-					<a href="#" className="nav-link text-gray-300 hover:text-white font-medium">Community</a>
-					<a href="#" className="nav-link text-gray-300 hover:text-white font-medium">Contact</a>
+					/* <a href="#" className="nav-link text-gray-300 hover:text-white font-medium">Analytics</a>
+					/* <a href="#" className="nav-link text-gray-300 hover:text-white font-medium">Community</a> */
+					<a href="#" className="nav-link text-gray-300 hover:text-white font-medium">Contact</a> 
 					<a href="login" className="bg-primary hover:bg-blue-600 text-white px-6 py-2 rounded-full font-medium transition duration-300">Login</a>
 					</nav>
 				</div>
