@@ -59,6 +59,41 @@ export default function Dashboard(){
     { id:3, title:'Peer Workshop: Project Planning', when:'Next week • 14:00', rsvped:false }
   ]);
 
+  // ------------------- NEW: Invite Friend State -------------------
+  const [inviteEmail, setInviteEmail] = useState('');
+  const [sending, setSending] = useState(false);
+
+  // ------------------- NEW: Invite Friend Handler -------------------
+  const handleInviteClick = async () => {
+    if (!inviteEmail) {
+      alert("Please enter your friend’s email.");
+      return;
+    }
+
+    setSending(true);
+
+    try {
+      const response = await fetch("http://localhost:5000/api/invite", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email: inviteEmail }),
+      });
+
+      const data = await response.json();
+
+      if (data.success) {
+        alert("Invite email sent! Your friend can now register using the link in their email.");
+        setInviteEmail("");
+      } else {
+        alert("Failed to send invite: " + data.error);
+      }
+    } catch (err) {
+      alert("Error sending invite: " + err);
+    } finally {
+      setSending(false);
+    }
+  };
+
   useEffect(() => {
     // load persisted events RSVP
     const st = getState();
@@ -158,6 +193,8 @@ export default function Dashboard(){
   }
 
   /* ----------------- Render ----------------- */
+
+
   return (
     <div className="min-h-screen bg-gradient-to-b from-slate-50 to-white p-7 text-slate-900">
       <div className="max-w-6xl mx-auto">
