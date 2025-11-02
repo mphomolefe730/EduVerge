@@ -6,6 +6,9 @@ const CourseService = {
     },
     getCourseById: (courseId:string)=>{
         return httpClient.get(`/courses/${courseId}`)
+    },
+    getAllCourses: ()=>{
+        return httpClient.get(`/courses`)
     }
 }
 export default CourseService;
