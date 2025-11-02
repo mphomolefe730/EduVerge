@@ -86,36 +86,6 @@ const FilesSection = ({ files }: { files: string[] }) => (
     <button>REMOVE FILTER</button>
   </div>
 );
-// ---------- Course Settings ----------
-const CourseSettings = ( {courseDetails} : {courseDetails: EditModeSettings["courseDetails"]} ) => (
-  <div className="courseSettings">
-    <p className="containerTitle">COURSE SETTINGS</p>
-    <div>
-      <label> Course Name </label>
-      <input type="text" value={ courseDetails.courseName } readOnly />        
-    </div>
-    <div>
-      <label> Course Description </label>
-      <textarea value={ courseDetails.courseDescription }></textarea>        
-    </div>
-    <div>
-      <label> Prerequisites </label>
-      <input type="text" value={ courseDetails.prerequisites } readOnly />        
-    </div>
-    <div>
-      <label> Price </label>
-      <input type="number" value={ courseDetails.price } readOnly />        
-    </div>
-    <div>
-      <label> Access Period </label>
-      <input type="number" value={ courseDetails.accessPeriod } readOnly />        
-    </div>
-    <div>
-      <label> Course Collection </label>
-      <input type="type" value={ courseDetails.courseCollection } readOnly />        
-    </div>
-  </div>
-)
 
 // ---------- Main Editor ----------
 const MainEditor = ({
@@ -264,7 +234,7 @@ function EditMode() {
   const [trackTime, setTrackTime] = useState(0);
   const [minute, setMinute] = useState(0);
   const [outputDisplayVar, updateOutputDisplayVar ] = useState("");
-  const [informationFetched, setInformationFetched] = useState<boolean>(false);
+  const [informationFetched, setInformationFetched] = useState<{onScreenMessage:string,status:boolean}>({onScreenMessage: "Loading content", status: true});
   const [courseInformation, updateCourseInformation] = useState<EditModeSettings>({
     id: "",
     courseDetails: {
@@ -278,85 +248,8 @@ function EditMode() {
     },
     files: [],
     courseSettings: [],
-    main: [
-      { 
-        id: "", 
-        text: [{ time: "00:00", context: "<p>welcome to</p><h1>EDU VERGE</h1>", run: true }],
-        curse: { time: "", x: 0, y: 0 },
-        fileType: fileTypes.HTML,
-        fileName: "index"
-      },
-      {
-        id: "", 
-        text: [{ time: "00:03", context: "<p>my name:</p><h1>Mpho Molefe</h1>", run: true }],
-        curse: { time: "", x: 0, y: 0 },
-        fileType: fileTypes.HTML,
-        fileName: "index"
-      },
-      {
-        id: "", 
-        text: [{ time: "00:08", context: "what will you learn:", run: true }],
-        curse: { time: "", x: 0, y: 0 },
-        fileType: fileTypes.HTML,
-        fileName: "index"
-      },
-      {
-        id: "", 
-        text: [{ time: "00:14", context: "what will you learn: <p>adding <button>button</button></p>", run: true }],
-        curse: { time: "", x: 0, y: 0 },
-        fileType: fileTypes.HTML,
-        fileName: "index"
-      },
-      {
-        id: "", 
-        text: [{ time: "00:16", context: "what will you learn: <p>adding <button>button</button></p><p>adding text</p>", run: true }],
-        curse: { time: "", x: 0, y: 0 },
-        fileType: fileTypes.HTML,
-        fileName: "index"
-      },
-      {
-        id: "", 
-        text: [{ time: "00:17", context: "what will you learn: <p>adding <button>button</button></p><p>adding text</p><p>allow use to add input</p>", run: true }],
-        curse: { time: "", x: 0, y: 0 },
-        fileType: fileTypes.HTML,
-        fileName: "index"
-      },
-      {
-        id: "", 
-        text: [{ time: "00:20", context: "clearing output.", run: true }],
-        curse: { time: "", x: 0, y: 0 },
-        fileType: fileTypes.HTML,
-        fileName: "index"
-      },
-      {
-        id: "", 
-        text: [{ time: "00:21", context: "clearing output..", run: true }],
-        curse: { time: "", x: 0, y: 0 },
-        fileType: fileTypes.HTML,
-        fileName: "index"
-      },
-      {
-        id: "", 
-        text: [{ time: "00:22", context: "clearing output...", run: true }],
-        curse: { time: "", x: 0, y: 0 },
-        fileType: fileTypes.HTML,
-        fileName: "index"
-      },
-      {
-        id: "", 
-        text: [{ time: "00:23", context: "", run: true }],
-        curse: { time: "", x: 0, y: 0 },
-        fileType: fileTypes.HTML,
-        fileName: "index"
-      }
-    ],
-    audio: [
-      { id: "",  time: "00:00", audioLink: "/src/assets/audio/welcome.ogg", audioStartTime: "00:00", audioEndTime: "00:07" },
-      { id: "",  time: "00:07", audioLink: "/src/assets/audio/courseOverview_pt1.ogg", audioStartTime: "00:01", audioEndTime: "00:07" },
-      { id: "",  time: "00:14", audioLink: "/src/assets/audio/courseOverview_pt2.ogg", audioStartTime: "00:00", audioEndTime: "00:04" },
-      { id: "",  time: "00:18", audioLink: "/src/assets/audio/courseOverview_pt2.ogg", audioStartTime: "00:06", audioEndTime: "00:08" },
-      { id: "",  time: "00:20", audioLink: "/src/assets/audio/courseOverview_pt2.ogg", audioStartTime: "00:11", audioEndTime: "00:13" },
-    ]
+    main: [],
+    audio: []
   });
 
   // -------- Handlers ----------
@@ -398,7 +291,70 @@ function EditMode() {
     });
   };
 
+  const updateCourseDetails = (field: string, value: string | number) => {
+    updateCourseInformation(prev => ({
+      ...prev,
+      courseDetails: {
+        ...prev.courseDetails,
+        [field]: value
+      }
+    }));
+  };
+  
+  // ---------- Course Settings ----------
+  const CourseSettings = ( {courseDetails} : {courseDetails: EditModeSettings["courseDetails"]} ) => (
+    <div className="courseSettings">
+      <p className="containerTitle">COURSE SETTINGS</p>
+      <div>
+      <label>Course Name</label>
+      <input 
+        type="text" 
+        onChange={(e) => updateCourseDetails('courseName', e.target.value)} 
+        value={courseInformation.courseDetails.courseName} 
+      />        
+      </div>
+      <div>
+        <label>Course Description</label>
+        <textarea 
+          onChange={(e) => updateCourseDetails('courseDescription', e.target.value)} 
+          value={courseInformation.courseDetails.courseDescription}
+        ></textarea>        
+      </div>
+      <div>
+        <label>Prerequisites</label>
+        <input 
+          type="text" 
+          onChange={(e) => updateCourseDetails('prerequisites', e.target.value)} 
+          value={courseInformation.courseDetails.prerequisites} 
+        />        
+      </div>
+      <div>
+        <label>Price</label>
+        <input 
+          type="number" 
+          onChange={(e) => updateCourseDetails('price', parseFloat(e.target.value) || 0)} 
+          value={courseInformation.courseDetails.price} 
+        />        
+      </div>
+    <div>
+      <label>Access Period</label>
+      <input 
+        type="number" 
+        onChange={(e) => updateCourseDetails('accessPeriod', parseInt(e.target.value) || 0)} 
+        value={courseInformation.courseDetails.accessPeriod} 
+      />        
+    </div>
+  </div>
+)
+
   const handleRemoveText = (mainIdx: number, textIdx: number) => {
+    if(courseInformation.main.length == 1){
+      setInformationFetched({onScreenMessage: "CAN REMOVE LAST ELEMENT", status: true});
+      setTimeout(() => {
+        setInformationFetched({onScreenMessage: "", status: false});
+      }, 3000);
+      return;
+    }
     updateCourseInformation(prev => ({
       ...prev,
       main: prev.main.map((item, i) =>
@@ -477,9 +433,10 @@ function EditMode() {
   // -------- Effects ----------
   useEffect(() => {
     CourseService.getCourseById(courseId).then(response => {
+      setInformationFetched({onScreenMessage: "", status: false});
       updateCourseInformation(response.data);
-      setInformationFetched(true);
     }).catch(error => {
+      setInformationFetched({onScreenMessage: "Error fetching course data, please refresh page", status: true});
       console.error("Error fetching course data:", error);
     });
     updateCourseInformation(prev => {
@@ -530,12 +487,12 @@ function EditMode() {
         setSelectedType={setSelectedAddType}
       />
 
-      <div style={{ borderRadius: "1rem", display: (informationFetched) ? "none" : "flex", justifyContent: "center", alignContent: "center", backgroundColor: "white"}}> 
-        <p>Loading content</p>
+      <div style={{ borderRadius: "1rem", display: (informationFetched.status) ? "flex" : "none", justifyContent: "center", alignContent: "center", height: "80svh", backgroundColor: "white"}}> 
+        <h1>{informationFetched.onScreenMessage}</h1>
       </div>
 
-      <div style={{ display: (informationFetched) ? "grid" : "none"}} className='editModeSecondaryContainer bg-white rounded-xl shadow m-1'>
-        <div id="one">
+      <div style={{ display: (informationFetched.status) ? "none" : "grid"}} className='editModeSecondaryContainer bg-white rounded-xl shadow m-1'>
+        <div id="one" style={{overflow:"scroll"}}>
           <CourseDetails info={courseInformation} />
           <FilesSection files={courseInformation.files} />
           <CourseSettings courseDetails={courseInformation.courseDetails}/>

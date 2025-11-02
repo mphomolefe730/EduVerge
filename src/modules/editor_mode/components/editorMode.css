@@ -116,3 +116,7 @@
   color: #666;
   margin-top: 4px;
 }
+
+input{
+    border: 2px solid black;
+}
