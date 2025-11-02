@@ -10,6 +10,8 @@ import EditModeForm from './modules/editor_mode/components/editModeForm.tsx';
 import Dashboard from './modules/dashboard/components/dashboard.tsx';
 import Login from './modules/shared/auth/login.tsx';
 import Register from './modules/shared/auth/register.tsx';
+import StudyGroupsLayout from './modules/study_group/components/studyGroup.tsx';
+import StudyGroupsCreate from './modules/study_group/components/studyGroupCreate.tsx';
 
 const router = createBrowserRouter([
   { 
@@ -32,8 +34,14 @@ const router = createBrowserRouter([
     path: '/create',
     element: <EditModeForm />
   },{
-    path: '/edit/:courseCollection/:courseName',
+    path: '/edit/:courseCollection/:courseId/:courseName',
     element: <EditMode/> 
+  },{
+    path: '/studygroup',
+    element: <StudyGroupsLayout/>
+  },{
+    path: '/studygroup/create',
+    element: <StudyGroupsCreate/>
   }
 ])
 

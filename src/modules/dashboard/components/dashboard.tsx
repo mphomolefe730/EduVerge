@@ -2,9 +2,7 @@ import React, { useEffect, useState, useRef } from 'react';
 import introJs from 'intro.js';
 import 'intro.js/introjs.css';
 import confetti from 'canvas-confetti';
-
-// Single-file React refactor of the provided prototype. Tailwind CSS is used for styling.
-// You can split components into files if you prefer.
+import { useNavigate } from "react-router-dom";
 
 const STORAGE_KEY = 'eduverge_onboarding_v1';
 
@@ -38,22 +36,6 @@ const Button = ({ children, variant = 'solid', onClick, className = '' }) => {
   );
 };
 
-/* ----------------- Modals ----------------- */
-function Modal({ isOpen, onClose, title, children }){
-  if (!isOpen) return null;
-  return (
-    <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-40" role="dialog" aria-modal="true">
-      <div className="bg-white rounded-xl shadow-2xl max-w-2xl w-full p-6">
-        <div className="flex justify-between items-start">
-          <h3 className="text-lg font-semibold">{title}</h3>
-          <button aria-label="Close" onClick={onClose} className="text-gray-500 hover:text-gray-700">✕</button>
-        </div>
-        <div className="mt-4">{children}</div>
-      </div>
-    </div>
-  );
-}
-
 /* ----------------- Feature components ----------------- */
 function ProgressBar({ pct }){
   return (
@@ -68,17 +50,9 @@ function ProgressBar({ pct }){
 
 /* ----------------- Main App ----------------- */
 export default function Dashboard(){
-  // persistent state
+  const navigate = useNavigate();
   const [state, setState] = useState(getState);
 
-  // UI modals
-  const [courseOpen, setCourseOpen] = useState(false);
-  const [chatOpen, setChatOpen] = useState(false);
-  const [mentorOpen, setMentorOpen] = useState(false);
-
-  // other transient UI
-  const [chatMessages, setChatMessages] = useState([{ who: 'bot', text: 'Welcome! Say hi and I’ll show you quick tips.' }]);
-  const chatInputRef = useRef(null);
   const [events, setEvents] = useState([
     { id:1, title:'Study Sprint: Data Structures', when:'Tomorrow • 18:00', rsvped:false },
     { id:2, title:'Live Q&A: Algorithms', when:'In 3 days • 16:00', rsvped:false },
@@ -137,54 +111,36 @@ export default function Dashboard(){
       }).onexit(() => { setState(prev => ({ ...prev, skipped: true })); }).start();
   }
 
-  /* ---------- Handlers for features ---------- */
+  /* ---------- Simplified handlers that just show alerts ---------- */
+  function handleFeatureClick(featureName) {
+    alert(`${featureName} feature would open here - this would navigate to the ${featureName} section in the full application`);
+  }
+
   function submitQuiz(answer){
-    if (answer === 'b'){
-      setState(prev => ({ ...prev, quizDone: true }));
-      addBadge('Quiz Explorer');
-      setCourseOpen(false);
-    } else {
-      alert('Not quite — try again!');
-    }
+    alert('Quiz functionality would be handled in the full Courses component');
+    setCourseOpen(false);
   }
 
   function toggleGroup(){
-    setState(prev => {
-      const next = { ...prev, groupJoined: !prev.groupJoined };
-      if (next.groupJoined) addBadge('Team Player');
-      return next;
-    });
+    alert('Study group functionality would be handled in the full Groups component');
   }
 
   function sendChat(){
-    const txt = chatInputRef.current?.value?.trim();
-    if (!txt) return;
-    setChatMessages(m => [...m, { who:'you', text: txt }]);
-    chatInputRef.current.value = '';
-    setTimeout(() => {
-      setChatMessages(m => [...m, { who:'bot', text:'Nice! Tip: Use study groups to tackle tricky topics together.' }]);
-      setState(prev => ({ ...prev, chatSent: true }));
-      addBadge('First Chat');
-    }, 450);
+    alert('Chat functionality would be handled in the full Chat component');
+    setChatOpen(false);
   }
 
   function rsvpEvent(id){
-    setEvents(prev => prev.map(e => e.id === id ? ({ ...e, rsvped: !e.rsvped }) : e));
-    setState(prev => { const ev = { ...(prev.events || {}) }; ev[id] = !ev[id]; return { ...prev, events: ev }; });
-    alert('RSVP toggled (demo).');
+    alert('Event RSVP functionality would be handled in the full Events component');
   }
 
   function submitMentor(role, note){
-    if (!note) { alert('Please share a short note.'); return; }
+    alert('Mentorship functionality would be handled in the full Mentorship component');
     setMentorOpen(false);
-    setState(prev => ({ ...prev, mentor: { role, note } }));
-    addBadge(role === 'mentor' ? 'Mentor Ready' : 'Mentor Seeker');
-    alert('Thanks — your mentorship request has been received (demo).');
   }
 
   function saveGoal(val){
-    if (!val) { alert('Enter a short goal.'); return; }
-    setState(prev => ({ ...prev, goal: val }));
+    alert('Goal setting functionality would be handled in the full Profile component');
   }
 
   function exportState(){
@@ -245,26 +201,26 @@ export default function Dashboard(){
           </section>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 mt-6" role="region" aria-label="Main features">
-            <div id="card-courses" className="bg-white rounded-xl p-4 shadow">
-              <div className="font-semibold">Courses</div>
-              <div className="text-sm text-slate-500 mt-1">Interactive lessons, practice quizzes and code labs</div>
-              <div className="mt-4"><Button onClick={()=> setCourseOpen(true)}>Open sample course</Button></div>
-              <div className="text-sm text-slate-600 mt-2">{state.quizDone ? '✓ Quiz completed' : ''}</div>
-            </div>
+            <Button onClick={() => { navigate("/courses"); }}>
+              <div id="card-courses">
+                <h1>Courses</h1>
+                <small  className="font-semibold">Interactive lessons, practice quizzes and code labs</small>
+              </div>
+            </Button>
 
-            <div id="card-groups" className="bg-white rounded-xl p-4 shadow">
-              <div className="font-semibold">Study groups</div>
-              <div className="text-sm text-slate-500 mt-1">Join a group, schedule sessions and share resources</div>
-              <div className="mt-4"><Button variant="ghost" onClick={toggleGroup}>{state.groupJoined ? 'Leave sample group' : 'Join sample group'}</Button></div>
-              <div className="text-sm text-slate-600 mt-2">{state.groupJoined ? '✓ Joined sample group' : ''}</div>
-            </div>
+            <Button onClick={() => { navigate("/studygroup"); }}>
+              <div id="card-groups">
+                <h1>Study groups</h1>
+                <small className="font-semibold">Join a group, schedule sessions and share resources</small>
+              </div>
+            </Button>
 
-            <div id="card-chat" className="bg-white rounded-xl p-4 shadow">
-              <div className="font-semibold">Chat</div>
-              <div className="text-sm text-slate-500 mt-1">Ask quick questions to peers & tutors</div>
-              <div className="mt-4"><Button onClick={()=> { setChatOpen(true); setChatMessages([{ who:'bot', text:'Welcome! Say hi and I’ll show you quick tips.' }]); }}>Open demo chat</Button></div>
-              <div className="text-sm text-slate-600 mt-2">{state.chatSent ? '✓ Sent demo message' : ''}</div>
-            </div>
+            <Button onClick={() => { navigate("/chats");}}>
+              <div id="card-chat">
+                <h1>Chat</h1>
+                <small className="font-semibold">Ask quick questions to peers & tutors</small>
+              </div>
+            </Button>
 
             <div id="card-progress" className="bg-white rounded-xl p-4 shadow">
               <div className="font-semibold">Progress</div>
@@ -298,7 +254,7 @@ export default function Dashboard(){
                       <div key={e.id} className="p-3 rounded-lg bg-white border border-slate-50 shadow-sm">
                         <div className="font-medium">{e.title}</div>
                         <div className="text-sm text-slate-500">{e.when}</div>
-                        <div className="mt-2"><Button variant="ghost" onClick={() => { rsvpEvent(e.id); }}>{e.rsvped ? 'RSVPed' : 'RSVP'}</Button></div>
+                        <div className="mt-2"><Button variant="ghost" onClick={() => { handleFeatureClick('Events'); }}>View Event</Button></div>
                       </div>
                     ))}
                   </div>
@@ -314,86 +270,19 @@ export default function Dashboard(){
                 <label className="text-sm text-slate-500">Set a personal goal (optional)</label>
                 <input id="goalInput" defaultValue={state.goal || ''} className="w-full mt-2 px-3 py-2 border rounded-md" placeholder="e.g., Finish Python basics in 2 weeks" />
                 <div className="mt-3 flex gap-2">
-                  <Button variant="ghost" onClick={() => saveGoal(document.getElementById('goalInput').value)}>Save Goal</Button>
+                  <Button variant="ghost" onClick={() => handleFeatureClick('Goal Setting')}>Save Goal</Button>
                 </div>
 
                 <div className="mt-4 text-sm text-slate-500">Invite friends to join EduVerge and learn together.</div>
                 <div className="mt-3 flex gap-2">
-                  <Button variant="ghost" onClick={async () => { const invite = window.location.href + '?ref=eduverge-demo'; try{ await navigator.clipboard.writeText(invite); alert('Invite link copied'); }catch(e){ alert('Copy failed — here is the link: ' + invite); } }}>Copy Invite Link</Button>
-                  <Button variant="ghost" onClick={() => { const subj = encodeURIComponent('Join me on EduVerge!'); const body = encodeURIComponent('I\'m using EduVerge to learn with peers — join me: ' + (window.location.href + '?ref=eduverge-demo')); window.location.href = `mailto:?subject=${subj}&body=${body}`; }}>Invite by Email</Button>
+                  <Button variant="ghost" onClick={() => handleFeatureClick('Invite Friends')}>Copy Invite Link</Button>
+                  <Button variant="ghost" onClick={() => handleFeatureClick('Invite Friends')}>Invite by Email</Button>
                 </div>
                 <div className="text-sm text-slate-600 mt-3">{state.goal ? `✓ Goal saved: ${state.goal}` : ''}</div>
               </div>
             </div>
           </div>
-
-          <div className="mt-6 flex items-center gap-3">
-            <Button variant="ghost" onClick={exportState}>Export Progress (JSON)</Button>
-            <label className="btn-ghost inline-block p-0">
-              <input type="file" accept=".json" className="hidden" onChange={(e) => importState(e.target.files[0])} />
-              <Button variant="ghost">Import JSON</Button>
-            </label>
-            <Button variant="ghost" onClick={() => { if (confirm('Reset onboarding progress?')) resetState(); }}>Reset Tour</Button>
-            <div className="ml-auto text-sm italic text-slate-500">Tip: Use Export to send state to QA or your backend team.</div>
-          </div>
         </main>
-
-        {/* Modals */}
-        <Modal isOpen={courseOpen} onClose={() => setCourseOpen(false)} title="Sample Course: Intro to Algorithms">
-          <p className="text-sm text-slate-500">A tiny taste of an interactive lesson. Answer the 1-question quiz below.</p>
-          <pre className="bg-slate-50 p-3 rounded mt-3">// Pseudocode: Binary Search (sorted array)
-function binarySearch(arr, target) {{ /* ... */ }}</pre>
-          <div className="mt-3">
-            <div className="font-semibold">Quiz:</div>
-            <div className="mt-2">What is the time complexity of binary search (worst case)?</div>
-            <div className="mt-2 space-y-2">
-              <label className="block"><input type="radio" name="q1" value="a" /> <span className="ml-2">O(n)</span></label>
-              <label className="block"><input type="radio" name="q1" value="b" /> <span className="ml-2">O(log n)</span></label>
-              <label className="block"><input type="radio" name="q1" value="c" /> <span className="ml-2">O(n log n)</span></label>
-            </div>
-            <div className="mt-4 flex justify-end gap-2">
-              <Button variant="ghost" onClick={() => setCourseOpen(false)}>Close</Button>
-              <Button onClick={() => {
-                const sel = document.querySelector('input[name="q1"]:checked');
-                if (!sel) { alert('Please choose an answer.'); return; }
-                submitQuiz(sel.value);
-              }}>Submit</Button>
-            </div>
-          </div>
-        </Modal>
-
-        <Modal isOpen={chatOpen} onClose={() => setChatOpen(false)} title="Demo Chat">
-          <p className="text-sm text-slate-500">Send one message to complete the task.</p>
-          <div className="mt-3 max-h-60 overflow-auto space-y-2" style={{ maxHeight: 260 }}>
-            {chatMessages.map((m, i) => (
-              <div key={i} className={`flex ${m.who === 'you' ? 'justify-end' : 'justify-start'}`}>
-                <div className={`rounded-xl p-3 shadow ${m.who === 'you' ? 'bg-blue-600 text-white' : 'bg-white'}`}>{m.text}</div>
-              </div>
-            ))}
-          </div>
-          <div className="mt-3 flex gap-2">
-            <input ref={chatInputRef} placeholder="Type a message..." className="flex-1 px-3 py-2 border rounded" onKeyDown={(e)=>{ if(e.key==='Enter') sendChat(); }} />
-            <Button onClick={sendChat}>Send</Button>
-          </div>
-          <div className="mt-3 flex justify-end"><Button variant="ghost" onClick={() => setChatOpen(false)}>Close</Button></div>
-        </Modal>
-
-        <Modal isOpen={mentorOpen} onClose={() => setMentorOpen(false)} title="Sign up as a Mentor / Request a Mentor">
-          <p className="text-sm text-slate-500">Join our mentorship program — connect with a mentor or offer help.</p>
-          <div className="mt-3">
-            <label className="text-sm text-slate-500">Your role</label>
-            <select id="mentorRole" className="w-full mt-2 px-3 py-2 border rounded">
-              <option value="mentor">I want to mentor</option>
-              <option value="mentee">I want a mentor</option>
-            </select>
-            <label className="text-sm text-slate-500 mt-3 block">Short message (why/what you want)</label>
-            <textarea id="mentorNote" rows={3} className="w-full mt-2 p-2 border rounded" />
-            <div className="mt-3 flex justify-end gap-2">
-              <Button variant="ghost" onClick={() => setMentorOpen(false)}>Close</Button>
-              <Button onClick={() => submitMentor(document.getElementById('mentorRole').value, document.getElementById('mentorNote').value)}>Submit</Button>
-            </div>
-          </div>
-        </Modal>
 
       </div>
     </div>
