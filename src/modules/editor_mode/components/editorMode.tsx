@@ -7,6 +7,7 @@ import './editorMode.css';
 import type { EditModeSettings } from '../../../configs/editModeSettings.ts';
 import fileTypes from '../../../configs/fileTypes.ts';
 import type InteractiveModeModel from '../../../models/interactiveModeModel.ts';
+import CourseService from "../../../services/course.service.ts";
 
 // ---------- Toolbar ----------
 const Toolbar = ({
@@ -257,23 +258,23 @@ const Timeline = ({
 
 // ---------- Main Component ----------
 function EditMode() {
-  const { courseName = "", courseCollection = "" } = useParams();
+  const { courseName = "", courseId = "", courseCollection = "" } = useParams();
   const [selectedAddType, setSelectedAddType] = useState("text editor");
   const [isPlaying, setIsPlaying] = useState(false);
   const [trackTime, setTrackTime] = useState(0);
   const [minute, setMinute] = useState(0);
   const [outputDisplayVar, updateOutputDisplayVar ] = useState("");
-  
+  const [informationFetched, setInformationFetched] = useState<boolean>(false);
   const [courseInformation, updateCourseInformation] = useState<EditModeSettings>({
     id: "",
     courseDetails: {
       id: "",
-      courseName: courseName.split("-").join(" "),
+      courseName: "",
       courseDescription: "",
       prerequisites: "",
       price: 0,
       accessPeriod: 0,
-      courseCollection
+      courseCollection: ""
     },
     files: [],
     courseSettings: [],
@@ -475,6 +476,12 @@ function EditMode() {
 
   // -------- Effects ----------
   useEffect(() => {
+    CourseService.getCourseById(courseId).then(response => {
+      updateCourseInformation(response.data);
+      setInformationFetched(true);
+    }).catch(error => {
+      console.error("Error fetching course data:", error);
+    });
     updateCourseInformation(prev => {
       const combinedFiles = [...prev.files, ...prev.main.map(p => `${p.fileName}.${p.fileType}`)];
       const uniqueFiles = Array.from(new Set(combinedFiles));
@@ -523,7 +530,11 @@ function EditMode() {
         setSelectedType={setSelectedAddType}
       />
 
-      <div className='editModeSecondaryContainer bg-white rounded-xl shadow m-1'>
+      <div style={{ borderRadius: "1rem", display: (informationFetched) ? "none" : "flex", justifyContent: "center", alignContent: "center", backgroundColor: "white"}}> 
+        <p>Loading content</p>
+      </div>
+
+      <div style={{ display: (informationFetched) ? "grid" : "none"}} className='editModeSecondaryContainer bg-white rounded-xl shadow m-1'>
         <div id="one">
           <CourseDetails info={courseInformation} />
           <FilesSection files={courseInformation.files} />
