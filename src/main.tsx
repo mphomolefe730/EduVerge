@@ -6,12 +6,14 @@ import './index.css';
 import HomePage from './modules/homepage/components/homepage.tsx';
 import InteractiveMode from './modules/interactive_mode/components/interactiveMode.tsx';
 import EditMode from './modules/editor_mode/components/editorMode.tsx';
+import EditCollection from './modules/editor_mode/components/editCollection.tsx';
 import EditModeForm from './modules/editor_mode/components/editModeForm.tsx';
 import Dashboard from './modules/dashboard/components/dashboard.tsx';
 import Login from './modules/shared/auth/login.tsx';
 import Register from './modules/shared/auth/register.tsx';
 import StudyGroupsLayout from './modules/study_group/components/studyGroup.tsx';
 import StudyGroupsCreate from './modules/study_group/components/studyGroupCreate.tsx';
+import ChatMain from './modules/chat/components/chatMain.tsx';
 
 const router = createBrowserRouter([
   { 
@@ -34,8 +36,14 @@ const router = createBrowserRouter([
     path: '/create',
     element: <EditModeForm />
   },{
+    path:'/chats',
+    element: <ChatMain/>
+  },{
     path: '/edit/:courseCollection/:courseId/:courseName',
     element: <EditMode/> 
+  },{
+    path: '/collection/edit/:courseCollection',
+    element: <EditCollection/>
   },{
     path: '/studygroup',
     element: <StudyGroupsLayout/>

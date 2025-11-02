@@ -1,66 +1,13 @@
 import { useParams } from "react-router-dom";
 import { useEffect, useState, type WebViewHTMLAttributes } from "react";
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faFloppyDisk, faCirclePlay, faSquarePlus, faCirclePause } from '@fortawesome/free-regular-svg-icons';
-
+import { faFloppyDisk, faCirclePlay, faNewspaper, faSquareCaretDown, faSquarePlus, faCirclePause } from '@fortawesome/free-regular-svg-icons';
+import { useNavigate } from "react-router-dom";
 import './editorMode.css';
 import type { EditModeSettings } from '../../../configs/editModeSettings.ts';
 import fileTypes from '../../../configs/fileTypes.ts';
 import type InteractiveModeModel from '../../../models/interactiveModeModel.ts';
 import CourseService from "../../../services/course.service.ts";
-
-// ---------- Toolbar ----------
-const Toolbar = ({
-  onSave,
-  onAdd,
-  onRun,
-  onSettings,
-  selectedType,
-  setSelectedType
-}: {
-  onSave: () => void;
-  onAdd: () => void;
-  onRun: () => void;
-  onSettings: () => void;
-  selectedType: string;
-  setSelectedType: (val: string) => void;
-}) => (
-  <div className='editModeSubContainer bg-white rounded-xl shadow m-1'>
-    <p className="containerTitle">Tool Bar</p>
-    <div className='toolbarElements'>
-      <button className='toolbarBtn' onClick={onSave} type="button">
-        <FontAwesomeIcon size="2x" icon={faFloppyDisk} />
-        <p>Save</p>
-      </button>
-
-      <button className='toolbarBtn' onClick={onAdd} type="button">
-        <FontAwesomeIcon size="2x" icon={faSquarePlus} />
-        <p>Add</p>
-      </button>
-
-      <select
-        className='addType'
-        value={selectedType}
-        onChange={(e) => setSelectedType(e.target.value)}
-      >
-        <option value="text editor">Text Editor</option>
-        <option value="audio editor">Audio Editor</option>
-        <option value="file">File</option>
-        <option value="user input">User Input</option>
-      </select>
-
-      <button className='toolbarBtn' onClick={onRun} type="button">
-        <FontAwesomeIcon size="2x" icon={faCirclePlay} />
-        <p>Run</p>
-      </button>
-
-      <button className='toolbarBtn' onClick={onSettings} type="button">
-        <FontAwesomeIcon size="2x" icon={faCirclePlay} />
-        <p>Settings</p>
-      </button>
-    </div>
-  </div>
-);
 
 // ---------- Course Details ----------
 const CourseDetails = ({ info }: { info: EditModeSettings }) => (
@@ -227,7 +174,8 @@ const Timeline = ({
 };
 
 // ---------- Main Component ----------
-function EditMode() {
+function EditMode() {  
+  const navigate = useNavigate();
   const { courseName = "", courseId = "", courseCollection = "" } = useParams();
   const [selectedAddType, setSelectedAddType] = useState("text editor");
   const [isPlaying, setIsPlaying] = useState(false);
@@ -290,6 +238,63 @@ function EditMode() {
       console.error("Audio playback error for:", audioLink);
     });
   };
+  // ---------- Toolbar ----------
+  const Toolbar = ({
+    onSave,
+    onAdd,
+    onRun,
+    onSettings,
+    selectedType,
+    setSelectedType
+  }: {
+    onSave: () => void;
+    onAdd: () => void;
+    onRun: () => void;
+    onSettings: () => void;
+    selectedType: string;
+    setSelectedType: (val: string) => void;
+  }) => (
+    <div className='editModeSubContainer bg-white rounded-xl shadow m-1'>
+      <p className="containerTitle">Tool Bar</p>
+      <div className='toolbarElements'>
+        <button className='toolbarBtn' onClick={onSave} type="button">
+          <FontAwesomeIcon size="2x" icon={faFloppyDisk} />
+          <p>Save</p>
+        </button>
+
+        <button className='toolbarBtn' onClick={onAdd} type="button">
+          <FontAwesomeIcon size="2x" icon={faSquarePlus} />
+          <p>Add</p>
+        </button>
+
+        <select
+          className='addType'
+          value={selectedType}
+          onChange={(e) => setSelectedType(e.target.value)}
+        >
+          <option value="text editor">Text Editor</option>
+          <option value="audio editor">Audio Editor</option>
+          <option value="file">File</option>
+          <option value="user input">User Input</option>
+        </select>
+
+        <button className='toolbarBtn' onClick={onRun} type="button">
+          <FontAwesomeIcon size="2x" icon={faCirclePlay} />
+          <p>Run</p>
+        </button>
+
+        <button className='toolbarBtn' onClick={onSettings} type="button">
+          <FontAwesomeIcon size="2x" icon={faNewspaper} />
+          <p>Settings</p>
+        </button>
+
+        <button className='toolbarBtn' onClick={()=> navigate(`/collection/edit/${courseCollection}`) } type="button">
+          <FontAwesomeIcon size="2x" icon={faSquareCaretDown} />
+          <p>Exit</p>
+        </button>
+      </div>
+    </div>
+  );
 
   const updateCourseDetails = (field: string, value: string | number) => {
     updateCourseInformation(prev => ({
