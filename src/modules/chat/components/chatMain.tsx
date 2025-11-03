@@ -6,13 +6,13 @@ import { useNavigate } from "react-router-dom";
 export default function ChatMain() {
     const navigate = useNavigate();
     const [pageInformation, setPageinformation] = useState({activePage: "chat", lastRefresh: new Date(), openChat: null });
+    const [studyGroups, setStudyGroups] = useState([]);
     
     useEffect(() => {
         const userInformation = UserService.checkLogin();
         if (userInformation){
-            console.log(userInformation);
             StudyGroupService.getAllUserGroups(userInformation.id).then((res:any) => {
-                console.log(res.data);
+                setStudyGroups(res.data);
             }).catch((e:any)=>{console.log(e)})
         }else{
             navigate("/login"); 
@@ -28,9 +28,34 @@ export default function ChatMain() {
             </header>            
             <div className="mt-4 bg-white rounded-xl p-5 shadow mb-6">
                 <div>
-                    {}
+                    <h2 className="text-lg font-semibold mb-4">Your Study Groups | <small> last refresh ({pageInformation.lastRefresh.toTimeString().slice(0, 5)})</small></h2>
+                    <div className="space-y-4">
+                        {studyGroups.map((group) => (
+                            <div key={group.id} className="p-4 rounded-lg border border-slate-100 bg-white shadow-sm">
+                                <div className="flex justify-between items-start">
+                                    <div>
+                                        <h3 className="font-medium text-slate-900">{group.groupName}</h3>
+                                        <p className="text-sm text-slate-600 mt-1">{group.description}</p>
+                                        <div className="flex gap-2 mt-2">
+                                            <span className="inline-block px-2 py-1 rounded-full bg-blue-50 text-blue-600 text-xs">
+                                                {group.difficulty}
+                                            </span>
+                                            <span className="inline-block px-2 py-1 rounded-full bg-slate-50 text-slate-600 text-xs">
+                                                {group.maxMembers} members max
+                                            </span>
+                                        </div>
+                                    </div>
+                                    <button 
+                                        onClick={() => { navigate(`/view/${group.id}`)}}
+                                        className="px-4 py-2 bg-blue-600 text-white rounded-lg text-sm font-semibold hover:opacity-95"
+                                    >
+                                        Open Chat
+                                    </button>
+                                </div>
+                            </div>
+                        ))}
+                    </div>
                 </div>
-                <div>{}</div>
             </div>
         </div>
     </div>

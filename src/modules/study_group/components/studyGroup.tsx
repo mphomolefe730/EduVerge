@@ -42,7 +42,7 @@ const StudyGroupCard = ({ group, onJoin }) => {
     maxMembers,
     tags,
     updatedAt
-  } = group;
+  } = group
 
   // const memberCount = `${members}/${maxMembers}`;
   // const isFull = members >= maxMembers;
@@ -60,24 +60,21 @@ const StudyGroupCard = ({ group, onJoin }) => {
         </div>
       </div>
 
-      <div className="flex flex-wrap gap-2 mb-4">
+      {/* <div className="flex flex-wrap gap-2 mb-4">
           <span className="px-2 py-1 bg-slate-50 text-slate-600 text-xs rounded-md">
             #{tags}
           </span>
-        {/* {tags.map((tag, index) => (
-        ))} */}
-      </div>
-
-      {/* <div className="flex justify-between items-center">
-        <Button
-          variant={isJoined ? 'ghost' : 'solid'}
-          onClick={() => onJoin(group)}
-          disabled={isFull && !isJoined}
-          className={isFull && !isJoined ? 'opacity-50 cursor-not-allowed' : ''}
-        >
-          {isJoined ? 'Leave Group' : isFull ? 'Group Full' : 'Join Group'}
-        </Button>
+        {tags.map((tag, index) => (
+        ))}
       </div> */}
+
+      <div className="flex justify-between items-center">
+        <Button
+          onClick={() => onJoin(group)}
+          >
+          View Group
+        </Button>
+      </div>
     </div>
   );
 };
@@ -170,11 +167,9 @@ export default function StudyGroupsLayout() {
 
   const [studyGroups, setStudyGroups] = useState<StudyGroup[]|[]>();
 
-  // const handleJoinGroup = (group:any) => {
-  //   setStudyGroups(prev => prev.map(g => 
-  //     g.id === group.id ? { ...g, isJoined: !g.isJoined, members: g.isJoined ? g.members - 1 : g.members + 1 } : g
-  //   ));
-  // };
+  const handleJoinGroup = (group:any) => {
+    navigate(`/view/${group.id}`)
+  };
   
   const handleFilterChange = (filterType, value) => {
     setFilters(prev => ({
@@ -182,6 +177,18 @@ export default function StudyGroupsLayout() {
       [filterType]: value
     }));
   };
+
+  const handleSearchChange = (e:any) => {
+    setSearchQuery(e.target.value);
+    searchCourse();
+  }
+
+  const searchCourse = () => {
+    StudyGroupService.searchForStudyGroup(searchQuery).then((res)=>{
+      console.log(res);
+      setStudyGroups(res.data.results)
+    }).catch((err)=>console.log(err))
+  }
 
   const filteredGroups = studyGroups?.filter(group => {
     const matchesSearch = group.groupName.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -198,7 +205,10 @@ export default function StudyGroupsLayout() {
     <div className="min-h-screen bg-gradient-to-b from-slate-50 to-white p-7 text-slate-900">
       <div className="max-w-6xl mx-auto">
         <header className="mb-8">
-          <h1 className="text-2xl font-bold text-slate-900">Study Groups</h1>
+          <h1 className="text-2xl font-bold text-slate-900">
+            <Button onClick={() => { navigate("/dashboard")}}>
+              VIEW DASHBOARD
+            </Button> Study Groups</h1>
           <p className="text-slate-600 mt-2">Join study groups to learn together, share knowledge, and achieve your academic goals</p>
         </header>
 
@@ -209,15 +219,16 @@ export default function StudyGroupsLayout() {
               <div className="relative">
                 <input
                   type="text"
-                  placeholder="Search study groups by name, description, or tags..."
+                  placeholder="Search study groups by name, description, course ID or tags..."
                   value={searchQuery}
+                  onChange={handleSearchChange}
                   className="w-full px-4 py-3 pl-10 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                 />
               </div>
             </div>
-            <Button onClick={()=>setSearchQuery(searchQuery)}>
+            {/* <Button onClick={searchCourse}>
                 Search
-            </Button>
+            </Button> */}
             <Button onClick={() => { navigate("/studygroup/create")}}>
               Create New Group
             </Button>
@@ -234,7 +245,7 @@ export default function StudyGroupsLayout() {
               <StudyGroupCard
                 key={group.id}
                 group={group}
-                // onJoin={handleJoinGroup}
+                onJoin={handleJoinGroup}
               />
             ))}
           </div>
