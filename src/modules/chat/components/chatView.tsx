@@ -3,6 +3,8 @@ import StudyGroupService from "../../../services/studyGroup.service"
 import UserService from "../../../services/user.service"
 import ChatService from "../../../services/chat.service"
 import { useNavigate } from "react-router-dom";
+import { faSquareCaretLeft } from "@fortawesome/free-regular-svg-icons";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 
 // Date utilities for message timestamps
 const DateUtils = {
@@ -61,6 +63,7 @@ export default function ChatView() {
     useEffect(() => {
         const userInformation = UserService.checkLogin();
         if (userInformation) {
+            console.log(userInformation);
             setCurrentUser(userInformation);
             loadStudyGroups();
         } else {
@@ -132,9 +135,8 @@ export default function ChatView() {
             <div className="max-w-6xl mx-auto h-screen flex">
                 {/* Sidebar - Groups List */}
                 <div className="w-1/3 bg-white border-r border-slate-200 flex flex-col">
-                    <div className="p-4 border-b border-slate-200">
-                        <h1 className="text-xl font-bold text-slate-900">Study Groups</h1>
-                        <p className="text-slate-600 text-sm mt-1">Your active conversations</p>
+                    <div className="p-4 border-b border-slate-200" onClick={()=>{ navigate('/dashboard')}}>
+                        <h1 className="text-xl font-bold text-slate-900"><FontAwesomeIcon size="2x" icon={faSquareCaretLeft}/> Go Back</h1>
                     </div>
                     
                     <div className="flex-1 overflow-y-auto">
@@ -207,6 +209,7 @@ export default function ChatView() {
                                                         : 'bg-white text-slate-900 rounded-bl-none border border-slate-200'
                                                 }`}
                                             >
+                                                <p>{currentUser?.username.toUpperCase()} | {currentUser?.userType.toUpperCase()}</p>
                                                 {message.messageType === 'text' ? (
                                                     <p className="text-sm">{message.message}</p>
                                                 ) : message.messageType === 'file' ? (

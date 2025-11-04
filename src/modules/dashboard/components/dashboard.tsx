@@ -3,6 +3,7 @@ import introJs from 'intro.js';
 import 'intro.js/introjs.css';
 import confetti from 'canvas-confetti';
 import { useNavigate } from "react-router-dom";
+import UserService from '../../../services/user.service';
 
 const STORAGE_KEY = 'eduverge_onboarding_v1';
 
@@ -52,6 +53,7 @@ function ProgressBar({ pct }){
 export default function Dashboard(){
   const navigate = useNavigate();
   const [state, setState] = useState(getState);
+  const [userInformation, setuserInformation] = useState([]);
 
   const [events, setEvents] = useState([
     { id:1, title:'Study Sprint: Data Structures', when:'Tomorrow • 18:00', rsvped:false },
@@ -65,15 +67,16 @@ export default function Dashboard(){
     if (st.events){
       setEvents(prev => prev.map(e => ({ ...e, rsvped: !!st.events[e.id] })));
     }
-    // apply badges from storage
     if (st.badges && st.badges.length) {
-      // no-op, badges come from state.badges
     }
+    const userInfo = UserService.checkLogin();
+    if (userInfo == undefined) navigate("/login");
     setState(st);
+    setuserInformation(userInfo);
+    if (!UserService.hasPermission("student")) navigate("/login");
   }, []);
 
   useEffect(() => {
-    // sync state to localStorage whenever state changes
     saveState(state);
   }, [state]);
 
@@ -85,10 +88,14 @@ export default function Dashboard(){
     setState(prev => ({ ...prev, badges }));
     confettiBurst(80);
   }
+  const handleSignOut = () => {
+    UserService.signOut();
+    navigate('/login');
+  }
 
   function startTour(){
     const steps = [
-      { element: '#introPanel', intro: '<strong>Welcome to EduVerge</strong><div style="margin-top:8px">We believe learning is better together. This tour takes ~3 minutes.</div>' },
+      { element: '#introPanel', intro: `<strong>Welcome to EduVerge ${userInformation!.username}</strong><div style="margin-top:8px">We believe learning is better together. This tour takes ~3 minutes.</div>` },
       { element: '#card-courses', intro: 'Courses — interactive lessons & quizzes. Open the sample course to try a mini-quiz.' },
       { element: '#card-groups', intro: 'Study groups — team up to learn faster. Join the sample group to earn a badge.' },
       { element: '#card-chat', intro: 'Chat — ask quick questions to peers & tutors. Send a message in demo chat.' },
@@ -114,33 +121,6 @@ export default function Dashboard(){
   /* ---------- Simplified handlers that just show alerts ---------- */
   function handleFeatureClick(featureName) {
     alert(`${featureName} feature would open here - this would navigate to the ${featureName} section in the full application`);
-  }
-
-  function submitQuiz(answer){
-    alert('Quiz functionality would be handled in the full Courses component');
-    setCourseOpen(false);
-  }
-
-  function toggleGroup(){
-    alert('Study group functionality would be handled in the full Groups component');
-  }
-
-  function sendChat(){
-    alert('Chat functionality would be handled in the full Chat component');
-    setChatOpen(false);
-  }
-
-  function rsvpEvent(id){
-    alert('Event RSVP functionality would be handled in the full Events component');
-  }
-
-  function submitMentor(role, note){
-    alert('Mentorship functionality would be handled in the full Mentorship component');
-    setMentorOpen(false);
-  }
-
-  function saveGoal(val){
-    alert('Goal setting functionality would be handled in the full Profile component');
   }
 
   function exportState(){
@@ -171,11 +151,12 @@ export default function Dashboard(){
           </div>
 
           <div className="flex items-center gap-3">
-            <div aria-live="polite" id="badgesContainer" className="flex items-center">
+            {/* <div aria-live="polite" id="badgesContainer" className="flex items-center">
               {(state.badges || []).map((b,i)=> <Badge key={i}>{b}</Badge>)}
             </div>
             <Button onClick={startTour}>Start Tour</Button>
-            <Button variant="ghost" onClick={() => { setState(prev=>({ ...prev, skipped: true })); alert('Tour skipped. You can start it anytime via "Start Tour".'); }}>Skip Tour</Button>
+            <Button variant="ghost" onClick={() => { setState(prev=>({ ...prev, skipped: true })); alert('Tour skipped. You can start it anytime via "Start Tour".'); }}>Skip Tour</Button> */}
+            <Button variant="ghost" onClick={handleSignOut}>SIGN OUT</Button>
           </div>
         </header>
 
@@ -231,7 +212,7 @@ export default function Dashboard(){
           </div>
 
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-5 mt-6">
-            <div id="card-community" className="lg:col-span-2 bg-white rounded-xl p-4 shadow">
+            {/* <div id="card-community" className="lg:col-span-2 bg-white rounded-xl p-4 shadow">
               <div className="flex justify-between items-start">
                 <div>
                   <div className="font-semibold">Community & Growth</div>
@@ -260,9 +241,9 @@ export default function Dashboard(){
                   </div>
                 </div>
               </div>
-            </div>
+            </div> */}
 
-            <div id="card-mission" className="bg-white rounded-xl p-4 shadow">
+            {/* <div id="card-mission" className="bg-white rounded-xl p-4 shadow">
               <div className="font-semibold">Mission & Goals</div>
               <div className="text-sm text-slate-500 mt-1">Our mission: Make learning interactive, collaborative and accessible to every student.</div>
 
@@ -280,7 +261,7 @@ export default function Dashboard(){
                 </div>
                 <div className="text-sm text-slate-600 mt-3">{state.goal ? `✓ Goal saved: ${state.goal}` : ''}</div>
               </div>
-            </div>
+            </div> */}
           </div>
         </main>
 

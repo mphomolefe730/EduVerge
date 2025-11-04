@@ -2,6 +2,8 @@ import React, { useState, useEffect } from 'react';
 import type StudyGroup from '../../../models/studyGroupModel';
 import { useNavigate } from "react-router-dom";
 import StudyGroupService from '../../../services/studyGroup.service';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faSquareCaretLeft } from "@fortawesome/free-regular-svg-icons";
 
 const Button = ({ children, variant = 'solid', onClick, className = '' }) => {
   const base = 'px-4 py-2 rounded-lg font-semibold focus:outline-none';
@@ -185,7 +187,6 @@ export default function StudyGroupsLayout() {
 
   const searchCourse = () => {
     StudyGroupService.searchForStudyGroup(searchQuery).then((res)=>{
-      console.log(res);
       setStudyGroups(res.data.results)
     }).catch((err)=>console.log(err))
   }
@@ -207,7 +208,7 @@ export default function StudyGroupsLayout() {
         <header className="mb-8">
           <h1 className="text-2xl font-bold text-slate-900">
             <Button onClick={() => { navigate("/dashboard")}}>
-              VIEW DASHBOARD
+              <FontAwesomeIcon size="2x" icon={faSquareCaretLeft}/>
             </Button> Study Groups</h1>
           <p className="text-slate-600 mt-2">Join study groups to learn together, share knowledge, and achieve your academic goals</p>
         </header>
