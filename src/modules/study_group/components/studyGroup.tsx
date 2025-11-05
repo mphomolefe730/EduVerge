@@ -170,7 +170,7 @@ export default function StudyGroupsLayout() {
   const [studyGroups, setStudyGroups] = useState<StudyGroup[]|[]>();
 
   const handleJoinGroup = (group:any) => {
-    navigate(`/view/${group.id}`)
+    navigate(`/group/info/${group.id}`)
   };
   
   const handleFilterChange = (filterType, value) => {

@@ -1,7 +1,7 @@
 import { useParams } from "react-router-dom";
 import { useEffect, useState, type WebViewHTMLAttributes } from "react";
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faFloppyDisk, faCirclePlay, faNewspaper, faSquareCaretDown, faSquarePlus, faCirclePause } from '@fortawesome/free-regular-svg-icons';
+import { faFloppyDisk, faIdCard, faCirclePlay, faNewspaper, faSquareCaretDown, faSquarePlus, faCirclePause } from '@fortawesome/free-regular-svg-icons';
 import { useNavigate } from "react-router-dom";
 import './editorMode.css';
 import type { EditModeSettings } from '../../../configs/editModeSettings.ts';
@@ -181,6 +181,7 @@ function EditMode() {
   const [isPlaying, setIsPlaying] = useState(false);
   const [trackTime, setTrackTime] = useState(0);
   const [minute, setMinute] = useState(0);
+  const [saving, setSaving] = useState(false);
   const [outputDisplayVar, updateOutputDisplayVar ] = useState("");
   const [informationFetched, setInformationFetched] = useState<{onScreenMessage:string,status:boolean}>({onScreenMessage: "Loading content", status: true});
   const [courseInformation, updateCourseInformation] = useState<EditModeSettings>({
@@ -257,8 +258,8 @@ function EditMode() {
     <div className='editModeSubContainer bg-white rounded-xl shadow m-1'>
       <p className="containerTitle">Tool Bar</p>
       <div className='toolbarElements'>
-        <button className='toolbarBtn' onClick={onSave} type="button">
-          <FontAwesomeIcon size="2x" icon={faFloppyDisk} />
+        <button disabled={saving} className='toolbarBtn' onClick={onSave} type="button">
+          <FontAwesomeIcon size="2x" icon={(saving)? faIdCard : faFloppyDisk} />
           <p>Save</p>
         </button>
 
@@ -375,6 +376,19 @@ function EditMode() {
     }));
   };
 
+  const handleSave = () => {
+    setSaving(true)
+    CourseService.saveCourseUpdate(courseInformation)
+    .then((e)=>{
+      setInformationFetched({onScreenMessage: "Saving Changes", status: true});
+      setTimeout(() => {
+        setSaving(false)
+        setInformationFetched({onScreenMessage: "", status: false});
+      }, 3000);
+    })
+    .catch(err=> console.log(err));
+  }
+
   const handleAdd = () => {
     if (selectedAddType === "text editor") {
       updateCourseInformation(prev => ({
@@ -484,7 +498,7 @@ function EditMode() {
   return (
     <div className='editModeMainContainer'>
       <Toolbar
-        onSave={() => console.log("save")}
+        onSave={handleSave}
         onAdd={handleAdd}
         onRun={() => console.log("run")}
         onSettings={() => console.log("settings")}
