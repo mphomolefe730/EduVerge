@@ -2,7 +2,7 @@ import fileType from '../configs/fileTypes.ts';
 
 export default interface InteractiveModeModel{
 	id:string,
-	text: { time: string, context:string, run:boolean } [] | [];
+	text: { id:string, time: string, context:string, run:boolean } [] | [];
 	curse: { time:string, x: number, y: number};
 	fileType: fileType;
 	fileName: string

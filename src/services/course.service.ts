@@ -9,6 +9,9 @@ const CourseService = {
     },
     getAllCourses: ()=>{
         return httpClient.get(`/courses`)
+    },
+    saveCourseUpdate: (courseInfo:any)=>{
+        return httpClient.put('/courses/update', courseInfo);
     }
 }
 export default CourseService;
