@@ -30,7 +30,7 @@ const router = createBrowserRouter([
     path: '/login',
     element: <Login/>,
   },{
-    path: '/group/info/:groupid',
+    path: '/group/info/:groupId',
     element: <StudyGroupView/>
   },{
     path: '/register',

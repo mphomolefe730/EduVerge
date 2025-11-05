@@ -11,7 +11,10 @@ const StudyGroupService = {
         return await httpClient.get(`/study-groups/search-by-query/${searchQuery}`);
     },
     joinStudyGroup: async (groupId:string, userId:string)=>{
-        return await httpClient.post(`/join/${groupId}`, userId)
+        return await httpClient.post(`/study-groups/join/${groupId}`, userId)
+    },
+    getStudyGroup: async (id:any)=>{
+        return await httpClient.get(`/study-groups/${id}`);
     }
 }
 
