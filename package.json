@@ -24,6 +24,7 @@
     "bootstrap": "^5.3.3",
     "canvas-confetti": "^1.9.3",
     "codemirror": "^6.0.2",
+    "firebase": "^12.5.0",
     "intro.js": "^8.3.2",
     "nodemailer": "^7.0.10",
     "react": "^19.1.0",

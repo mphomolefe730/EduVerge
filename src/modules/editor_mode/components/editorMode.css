@@ -13,7 +13,7 @@
 }
 .editModeSecondaryContainer{
     display: grid;
-    grid-template-columns: 2fr 6fr 6fr;
+    grid-template-columns: 3fr 6fr 6fr;
     gap: 10px;    
     height: 100%;
     overflow: hidden;
@@ -115,4 +115,8 @@
   font-size: 0.8rem;
   color: #666;
   margin-top: 4px;
+}
+
+input{
+    border: 2px solid black;
 }

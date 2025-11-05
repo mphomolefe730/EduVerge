@@ -1,9 +1,20 @@
-import { useState } from "react";
-import type StudyGroup from "../../../models/studyGroupModel";
+import { useEffect, useState } from "react";
 import GroupService from "../../../services/group.service";
+import UserService from "../../../services/user.service";
+import CourseService from "../../../services/course.service";
+import { useNavigate } from "react-router-dom";
 
 export default function StudyGroupCreate(){    
-    const [form, setForm] = useState({ groupName: "", description: "", difficulty: "easy", maximumNumber: 10, isPublic: "true" });
+    const navigate = useNavigate();
+    const [websiteCourses, setWebsiteCourses] = useState([]);
+    const [form, setForm] = useState({ groupName: "", description: "", difficulty: "easy", courseId: "", maximumNumber: 10, isPublic: "true" });
+
+    useEffect(()=>{
+        CourseService.getAllCourses().then((res:any)=>{
+            setWebsiteCourses(res.data);
+            setForm({ ...form, courseId: res.data[0].id });
+        }).catch((e:any)=>{console.log(e)})
+    }, []);
 
     const handleChange = (e:any) => {
         setForm({ ...form, [e.target.name]: e.target.value });
@@ -11,20 +22,7 @@ export default function StudyGroupCreate(){
     const HandleSubmit = (e:any) => {
         e.preventDefault();
         const newErrors = [];
-        const token = sessionStorage.getItem('EduVergeToken');
-        if(!token){
-            console.log("No token found");
-            return
-        };
-        const base64Url = token.split('.')[1];
-        const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
-        const jsonPayload = decodeURIComponent(
-        atob(base64)
-            .split('')
-            .map(c => '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2))
-            .join('')
-        );
-        const userInformation = JSON.parse(jsonPayload);
+        const userInformation = UserService.checkLogin();
 
         if (form.groupName === "" || form.description === "" || form.difficulty === "") {
             newErrors.push("Please fill all fields");
@@ -33,15 +31,15 @@ export default function StudyGroupCreate(){
         GroupService.createNewGroup({
             id: "",
             groupName: form.groupName,
-            description: form.description,  
-            courseId:"course_1762040463826",
+            description: form.description,
+            courseId: form.courseId,
             createdBy: userInformation.id,
             createdAt: new Date(),
             difficulty: form.difficulty,
             maxMembers: form.maximumNumber,
             isPublic: form.isPublic === "true" ? true : false,
         }).then((res:any) => {
-            console.log(res)
+            navigate("/studyGroup");
         }).catch(err=> console.log(err.request.response));
         return;
     }
@@ -74,8 +72,14 @@ return(
                 <option value="100">below 100</option>
                 <option value="999999">No Limit</option>
             </select>
+            <label>Course</label>
+            <select name="courseId" onChange={handleChange} className="w-full mt-2 px-3 py-2 border rounded-md">
+                {websiteCourses.map((course:any)=>
+                    <option key={course.id} value={course.id}>{course.courseName}</option>
+                )}
+            </select>
             <label>Public or Private</label>
-            <select name="maximumNumber" onChange={handleChange} className="w-full mt-2 px-3 py-2 border rounded-md">
+            <select name="isPublic" onChange={handleChange} className="w-full mt-2 px-3 py-2 border rounded-md">
                 <option value="public">Public</option>
                 <option value="private">Private</option>
             </select>

@@ -1,6 +1,9 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import type StudyGroup from '../../../models/studyGroupModel';
 import { useNavigate } from "react-router-dom";
+import StudyGroupService from '../../../services/studyGroup.service';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faSquareCaretLeft } from "@fortawesome/free-regular-svg-icons";
 
 const Button = ({ children, variant = 'solid', onClick, className = '' }) => {
   const base = 'px-4 py-2 rounded-lg font-semibold focus:outline-none';
@@ -30,63 +33,48 @@ const Badge = ({ children, type = 'default' }) => {
 
 const StudyGroupCard = ({ group, onJoin }) => {
   const {
-    id,
-    title,
-    subject,
+    courseId,
+    createdAt,
+    createdBy,
     description,
-    members,
-    maxMembers,
-    schedule,
     difficulty,
+    groupName,
+    id,
+    isPublic,
+    maxMembers,
     tags,
-    isJoined = false
-  } = group;
+    updatedAt
+  } = group
 
-  const memberCount = `${members}/${maxMembers}`;
-  const isFull = members >= maxMembers;
+  // const memberCount = `${members}/${maxMembers}`;
+  // const isFull = members >= maxMembers;
 
   return (
     <div className="bg-white rounded-xl p-5 shadow hover:shadow-md transition-shadow">
       <div className="flex justify-between items-start mb-3">
         <div className="flex-1">
-          <h3 className="font-semibold text-lg text-slate-900">{title}</h3>
-          <div className="flex items-center gap-2 mt-1">
-            <span className="text-sm text-slate-600">{subject}</span>
-            <span className="text-slate-300">•</span>
-            <Badge type={difficulty === 'Beginner' ? 'default' : difficulty === 'Intermediate' ? 'warning' : 'active'}>
-              {difficulty}
-            </Badge>
-          </div>
-        </div>
-        <div className="text-right">
-          <div className="text-sm text-slate-500 mb-1">Members</div>
-          <div className={`font-semibold ${isFull ? 'text-red-600' : 'text-slate-700'}`}>
-            {memberCount}
+          <h3 className="font-semibold text-lg text-slate-900">{groupName} <Badge type={difficulty === 'Beginner' ? 'default' : difficulty === 'Intermediate' ? 'warning' : 'active'}>{difficulty}</Badge></h3>
+          <p className="text-sm text-slate-600 mb-4 line-clamp-2">{description}</p>
+          <div className="gap-2 mt-1">
+            <p className="text-sm text-slate-600">created on: <Badge>{createdAt}</Badge></p>
+            <p className="text-sm text-slate-600">maximum members: <Badge>{maxMembers}</Badge></p>
           </div>
         </div>
       </div>
 
-      <p className="text-sm text-slate-600 mb-4 line-clamp-2">{description}</p>
-
-      <div className="flex flex-wrap gap-2 mb-4">
-        {tags.map((tag, index) => (
-          <span key={index} className="px-2 py-1 bg-slate-50 text-slate-600 text-xs rounded-md">
-            #{tag}
+      {/* <div className="flex flex-wrap gap-2 mb-4">
+          <span className="px-2 py-1 bg-slate-50 text-slate-600 text-xs rounded-md">
+            #{tags}
           </span>
+        {tags.map((tag, index) => (
         ))}
-      </div>
+      </div> */}
 
       <div className="flex justify-between items-center">
-        <div className="text-sm text-slate-500">
-          <span className="font-medium">Next:</span> {schedule}
-        </div>
         <Button
-          variant={isJoined ? 'ghost' : 'solid'}
           onClick={() => onJoin(group)}
-          disabled={isFull && !isJoined}
-          className={isFull && !isJoined ? 'opacity-50 cursor-not-allowed' : ''}
-        >
-          {isJoined ? 'Leave Group' : isFull ? 'Group Full' : 'Join Group'}
+          >
+          View Group
         </Button>
       </div>
     </div>
@@ -95,8 +83,8 @@ const StudyGroupCard = ({ group, onJoin }) => {
 
 const FilterSection = ({ filters, onFilterChange }) => {
   const subjects = ['All', 'Computer Science', 'Mathematics', 'Physics', 'Biology', 'Chemistry', 'Engineering'];
-  const difficulties = ['All', 'Beginner', 'Intermediate', 'Advanced'];
-  const meetingTypes = ['All', 'Weekly', 'Bi-weekly', 'One-time'];
+  const difficulties = ['All', 'easy', 'medium', 'hard'];
+  // const meetingTypes = ['All', 'Weekly', 'Bi-weekly', 'One-time'];
 
   return (
     <div className="bg-white rounded-xl p-5 shadow mb-6">
@@ -129,7 +117,7 @@ const FilterSection = ({ filters, onFilterChange }) => {
           </select>
         </div>
 
-        <div>
+        {/* <div>
           <label className="block text-sm font-medium text-slate-700 mb-2">Meeting Type</label>
           <select 
             value={filters.meetingType}
@@ -140,7 +128,7 @@ const FilterSection = ({ filters, onFilterChange }) => {
               <option key={type} value={type}>{type}</option>
             ))}
           </select>
-        </div>
+        </div> */}
       </div>
 
       <div className="mt-4">
@@ -158,25 +146,33 @@ const FilterSection = ({ filters, onFilterChange }) => {
   );
 };
 
+
 export default function StudyGroupsLayout() {
   const [searchQuery, setSearchQuery] = useState('');
   const navigate = useNavigate();
   const [filters, setFilters] = useState({
     subject: 'All',
     difficulty: 'All',
-    meetingType: 'All',
+    // meetingType: 'All',
     onlyAvailable: false
   });
+  
+  useEffect(() => {
+    StudyGroupService.getAllStudyGroups()
+    .then((res:any) => {
+      setStudyGroups(res.data);
+    })
+    .catch((e:any)=>{
+      console.log(e)
+    });
+  },[]);
 
-  // Mock data - in a real app, this would come from an API
   const [studyGroups, setStudyGroups] = useState<StudyGroup[]|[]>();
 
   const handleJoinGroup = (group:any) => {
-    setStudyGroups(prev => prev.map(g => 
-      g.id === group.id ? { ...g, isJoined: !g.isJoined, members: g.isJoined ? g.members - 1 : g.members + 1 } : g
-    ));
+    navigate(`/view/${group.id}`)
   };
-
+  
   const handleFilterChange = (filterType, value) => {
     setFilters(prev => ({
       ...prev,
@@ -184,11 +180,21 @@ export default function StudyGroupsLayout() {
     }));
   };
 
-  // Filter and search logic
+  const handleSearchChange = (e:any) => {
+    setSearchQuery(e.target.value);
+    searchCourse();
+  }
+
+  const searchCourse = () => {
+    StudyGroupService.searchForStudyGroup(searchQuery).then((res)=>{
+      setStudyGroups(res.data.results)
+    }).catch((err)=>console.log(err))
+  }
+
   const filteredGroups = studyGroups?.filter(group => {
     const matchesSearch = group.groupName.toLowerCase().includes(searchQuery.toLowerCase()) ||
         group.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        group.tags.toLowerCase().includes(searchQuery.toLowerCase());
+        group.courseId.toLowerCase().includes(searchQuery.toLowerCase());
     
     const matchesSubject = filters.subject === 'All' || group?.groupName === filters.subject;
     const matchesDifficulty = filters.difficulty === 'All' || group?.difficulty === filters.difficulty;
@@ -200,7 +206,10 @@ export default function StudyGroupsLayout() {
     <div className="min-h-screen bg-gradient-to-b from-slate-50 to-white p-7 text-slate-900">
       <div className="max-w-6xl mx-auto">
         <header className="mb-8">
-          <h1 className="text-2xl font-bold text-slate-900">Study Groups</h1>
+          <h1 className="text-2xl font-bold text-slate-900">
+            <Button onClick={() => { navigate("/dashboard")}}>
+              <FontAwesomeIcon size="2x" icon={faSquareCaretLeft}/>
+            </Button> Study Groups</h1>
           <p className="text-slate-600 mt-2">Join study groups to learn together, share knowledge, and achieve your academic goals</p>
         </header>
 
@@ -211,15 +220,16 @@ export default function StudyGroupsLayout() {
               <div className="relative">
                 <input
                   type="text"
-                  placeholder="Search study groups by name, description, or tags..."
+                  placeholder="Search study groups by name, description, course ID or tags..."
                   value={searchQuery}
+                  onChange={handleSearchChange}
                   className="w-full px-4 py-3 pl-10 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                 />
               </div>
             </div>
-            <Button onClick={()=>setSearchQuery(searchQuery)}>
+            {/* <Button onClick={searchCourse}>
                 Search
-            </Button>
+            </Button> */}
             <Button onClick={() => { navigate("/studygroup/create")}}>
               Create New Group
             </Button>
@@ -245,20 +255,6 @@ export default function StudyGroupsLayout() {
             <div className="text-slate-400 text-6xl mb-4">📚</div>
             <h3 className="text-lg font-semibold text-slate-700 mb-2">No study groups found</h3>
             <p className="text-slate-500 mb-4">Try adjusting your search or filters to find more groups</p>
-            {/* <Button
-              variant="ghost"
-              onClick={() => {
-                setSearchQuery('');
-                setFilters({
-                  subject: 'All',
-                  difficulty: 'All',
-                  meetingType: 'All',
-                  onlyAvailable: false
-                });
-              }}
-            >
-              Clear all filters
-            </Button> */}
           </div>
         )}
       </div>

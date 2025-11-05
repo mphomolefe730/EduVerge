@@ -7,9 +7,32 @@ const UserService = {
     registerUser: ( {username, email, password, userType, profilePicture}: {username:string, email:string, userType:string, password:string, profilePicture:string}) => {
         return httpClient.post(`/users`, {username:username, email:email, password:password, profilePicture: profilePicture, userType:userType})
     },
-    // createUser: (user: any) => httpClient.post('/api/users', user),
-    // updateUser: (id: string, user: any) => httpClient.put(`/users/${id}`, user),
-    // deleteUser: (id: string) => httpClient.delete(`/users/${id}`),
+    signOut: () => {
+        sessionStorage.removeItem("EduVergeToken");
+    },
+    checkLogin: () => {
+        const token = sessionStorage.getItem('EduVergeToken');
+        if(!token){
+            return            
+        }
+        const base64Url = token.split('.')[1];
+        const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+        const jsonPayload = decodeURIComponent(
+        atob(base64)
+            .split('')
+            .map(c => '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2))
+            .join('')
+        );
+        return JSON.parse(jsonPayload);
+    
+    },
+    hasPermission: (permissionType:string)=>{
+        const userObj = UserService.checkLogin()
+        if (userObj.userType === permissionType || userObj === "admin"){
+            return true;
+        }
+        return false;
+    }
 };
 
 export default UserService;

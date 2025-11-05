@@ -63,8 +63,14 @@ export default function Login() {
           placeholder="Password"
           onChange={handleChange}
           value={form.password}
-          className="w-full mb-4 p-2 border rounded-md"
+          className="w-full mb-2 p-2 border rounded-md"
         />
+        {/* Forgot Password Link */}
+        <div className="w-full text-right mb-4">
+          <a href="/forgot-password" className="text-sm text-blue-500 hover:text-blue-700 hover:underline">
+            Forgot Password?
+          </a>
+        </div>
         <button
           type="submit"
           className="w-full bg-blue-500 text-white py-2 rounded-md hover:bg-blue-600"
