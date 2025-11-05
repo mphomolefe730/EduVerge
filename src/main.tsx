@@ -15,6 +15,8 @@ import StudyGroupsLayout from './modules/study_group/components/studyGroup.tsx';
 import StudyGroupsCreate from './modules/study_group/components/studyGroupCreate.tsx';
 import ChatMain from './modules/chat/components/chatMain.tsx';
 import ChatView from './modules/chat/components/chatView.tsx';
+import ViewAllCourses from './modules/courses/viewAllCourses.tsx';
+import StudyGroupView from './modules/study_group/components/studyGroupView.tsx';
 
 const router = createBrowserRouter([
   { 
@@ -27,6 +29,9 @@ const router = createBrowserRouter([
   },{
     path: '/login',
     element: <Login/>,
+  },{
+    path: '/group/info/:groupid',
+    element: <StudyGroupView/>
   },{
     path: '/register',
     element: <Register/>,
@@ -54,6 +59,9 @@ const router = createBrowserRouter([
   },{
     path: '/studygroup/create',
     element: <StudyGroupsCreate/>
+  },{
+    path: '/courses',
+    element: <ViewAllCourses/>
   }
 ])
 
